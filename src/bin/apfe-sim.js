@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander'
 import chalk from 'chalk'
+import {
+  Command,
+} from 'commander'
 
 const usageStr = `
 

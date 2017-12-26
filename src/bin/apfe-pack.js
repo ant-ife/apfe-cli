@@ -10,6 +10,6 @@ program
   .command('exportkey', 'export the RSA key pairs')
   .command('init', 'init offline package')
   .command('pack', 'pack offline package', {
-    isDefault: true
+    isDefault: true,
   })
   .parse(process.argv)

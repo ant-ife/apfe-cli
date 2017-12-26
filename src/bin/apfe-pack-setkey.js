@@ -34,7 +34,7 @@ function entry () {
 
 function setKey () {
   fs.copySync(privateKeyPath, targetPath, {
-    overwrite: true
+    overwrite: true,
   })
   success('set private key success')
 }

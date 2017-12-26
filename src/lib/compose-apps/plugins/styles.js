@@ -83,7 +83,7 @@ export default composePlugin(
         const reg = new RegExp('../biz-apps/([A-Za-z0-9_-]+)/styles/index.less')
         const name = reg.exec(p)
         if (name && name.length === 2) {
-          for (let app of apps) {
+          for (const app of apps) {
             if (app.name === name[1]) {
               app.required = true
             } else {
@@ -93,16 +93,16 @@ export default composePlugin(
         }
       })
 
-      for (let app of apps) {
+      for (const app of apps) {
         unusedApps.delete(app.name)
       }
 
-      for (let unusedApp of unusedApps) {
+      for (const unusedApp of unusedApps) {
         const importPath = `../biz-apps/${unusedApp}/styles/index.less`
         fileContent = fileContent.replace(new RegExp(`@import\\s+['"]${importPath}['"];`), '')
       }
 
-      for (let app of apps) {
+      for (const app of apps) {
         if (!app.required) {
           fileContent = `${fileContent}\n${app.module};`
         }

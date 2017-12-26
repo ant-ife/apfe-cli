@@ -5,7 +5,7 @@ import {
   babelAppsFactory,
   duplicateArrayChecker,
   getExportDefaultDeclaration,
-  parseAstWrapper
+  parseAstWrapper,
 } from '../utils'
 import { composePlugin } from '../plugin-factory'
 import chalk from 'chalk'
@@ -74,7 +74,7 @@ export default composePlugin(
           array: getRoutesPathsArray(
             `${app.path}/router/index.js`,
             filePath => warn(`${logPrefix} ${filePath} needs to export an Array of Routes`)
-          )
+          ),
         }
       })
     )
@@ -126,14 +126,14 @@ function routesPlugins (project, config) {
               )
             }
           },
-        }
+        },
       }
     }
   }
 
   return [
     duplicateImportPlugin(ctx, config, 'router'),
-    routerInitPlugin(ctx)
+    routerInitPlugin(ctx),
   ]
 }
 

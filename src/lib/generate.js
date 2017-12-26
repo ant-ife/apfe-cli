@@ -154,9 +154,9 @@ export function generate (name, src, dest, done) {
  * @param {String} originDir
  */
 export function generateUpdate (modules = [],
-                                src,
-                                dest,
-                                originDir = process.cwd()) {
+  src,
+  dest,
+  originDir = process.cwd()) {
   return new Promise((resolve, reject) => {
     const opts = getMetadata(src)
     const metalsmith = Metalsmith(path.join(src, 'template'))

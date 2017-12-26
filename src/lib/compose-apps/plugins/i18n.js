@@ -6,7 +6,7 @@ import {
   babelAppsFactory,
   duplicateArrayChecker,
   getExportDefaultObjectKeys,
-  spreadLocalePlugin
+  spreadLocalePlugin,
 } from '../utils'
 import { basename } from 'path'
 import chalk from 'chalk'
@@ -65,7 +65,7 @@ export default composePlugin(
   async (scripts, project, config, logPrefix) => {
     const babelTransformers = scripts.map(filePath => {
       return babelTransform(filePath, {
-        plugins: i18nBabelPlugins(filePath, project, config, logPrefix)
+        plugins: i18nBabelPlugins(filePath, project, config, logPrefix),
       })
     })
 
@@ -94,7 +94,7 @@ function i18nBabelPlugins (filePath, project, config, logPrefix) {
   const notValidExportLogger = filePath => warn(`${logPrefix} ${filePath} export not a valid object, expect Object or Object.assign() Object`)
   const containerApp = {
     name: `src/${IMPORT_PATH}/${filename}.js`,
-    array: getExportDefaultObjectKeys(filePath, notValidExportLogger)
+    array: getExportDefaultObjectKeys(filePath, notValidExportLogger),
   }
   const duplicateCheckerApps = apps.map(app => {
     return {
@@ -102,7 +102,7 @@ function i18nBabelPlugins (filePath, project, config, logPrefix) {
       array: getExportDefaultObjectKeys(
         `${app.path}/${IMPORT_PATH}/${filename}.js`,
         notValidExportLogger
-      )
+      ),
     }
   })
 

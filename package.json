@@ -14,7 +14,6 @@
     "brucejcw <bruce.jcw@gmail.com>",
     "elrrrrrrr <elrrrrrrr@gmail.com>"
   ],
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/ant-ife/apfe-cli.git"
@@ -34,7 +33,6 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "camelcase": "^4.1.0",
-    "chalk": "^1.1.3",
     "commander": "^2.11.0",
     "consolidate": "^0.14.5",
     "deepmerge": "^1.5.2",
@@ -57,7 +55,7 @@
     "read-metadata": "^1.0.0",
     "request": "^2.67.0",
     "rimraf": "^2.6.2",
-    "semver": "^5.1.0",
+    "semver": "^5.4.1",
     "shelljs": "^0.7.8",
     "user-home": "^2.0.0",
     "validate-npm-package-name": "^2.2.2",
@@ -68,10 +66,12 @@
     "babel-eslint": "^7.1.1",
     "chai": "^3.5.0",
     "chai-fs": "^2.0.0",
-    "eslint": "^3.19.0",
-    "eslint-friendly-formatter": "^2.0.7",
+    "chalk": "^2.3.0",
+    "eslint": "^4.14.0",
+    "eslint-config-antife": "^1.0.0",
     "eslint-plugin-babel": "^4.1.1",
     "eslint-watch": "^3.1.2",
+    "istanbul": "^0.4.5",
     "mocha": "^4.0.1"
   },
   "engines": {
@@ -80,12 +80,14 @@
   "scripts": {
     "babel": "babel ./src --out-dir ./dist",
     "babel:dev": "babel ./src -w --out-dir ./dist",
-    "lint": "eslint ./src --ext .js --fix --format ./node_modules/eslint-friendly-formatter",
+    "lint": "eslint ./src --ext .js --fix",
     "lint:dev": "esw ./src -w",
     "dev": "npm run lint:dev & npm run babel:dev",
-    "build": "npm run lint && rm -rf ./dist && npm run babel",
-    "mocha": "mocha test/scripts/test-bizapp-compose.js --slow 1000",
+    "build": "rm -rf ./dist && npm run babel",
+    "mocha": "istanbul cover `npm bin`/_mocha test/scripts/test-bizapp-compose.js --slow 1000",
     "test": "npm run build && npm run mocha",
-    "pub": "npm run build && npm publish"
-  }
+    "pub": "npm run build && npm publish",
+    "ci": "npm run lint && npm run test"
+  },
+  "license": "MIT"
 }

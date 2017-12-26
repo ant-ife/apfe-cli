@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import fs from 'fs-extra'
 import chalk from 'chalk'
+import fs from 'fs-extra'
 import path from 'path'
 import gulp from 'gulp'
 import tar from 'gulp-tar'
@@ -95,7 +95,7 @@ function archiving (packer, cb) {
     rtv.on('end', () => {
       signTar(DIST_PATH + '/84', files84, () => {
         const _options = {
-          tar: true
+          tar: true,
         }
         gulpPkg(_options, packer, cb)
       })
@@ -182,8 +182,8 @@ function bizAppPack (config) {
 
   (async () => {
     try {
-      let paths = await globby(['*', '!{node_modules,offline-package,dist,offline_package}'], {
-        cwd: '../../'
+      const paths = await globby(['*', '!{node_modules,offline-package,dist,offline_package}'], {
+        cwd: '../../',
       })
 
       console.log(chalk.yellow('# staring copy file src to _temp'))
@@ -202,7 +202,7 @@ function bizAppPack (config) {
       // 4. build assets
       console.log(chalk.yellow('# staring building assets'))
       execSync('npm run build', {
-        cwd: TEMP_PATH
+        cwd: TEMP_PATH,
       })
 
       // 5. loading hook
@@ -216,7 +216,7 @@ function bizAppPack (config) {
       console.log(chalk.yellow('# starting beforePack'))
       beforePack && beforePack({
         fse: fs,
-        globby
+        globby,
       })
 
       // 6. execute pack
@@ -227,7 +227,7 @@ function bizAppPack (config) {
       console.log(chalk.yellow('# starting afterPack'))
       afterPack && afterPack({
         fse: fs,
-        globby
+        globby,
       })
     } catch (e) {
       console.error(chalk.red('# error', e))
@@ -320,7 +320,7 @@ function signTar (distPath, files, cb) {
  * @param {Function} cb callback
  */
 function gulpPkg (options, packer, cb) {
-  let amrFilename =
+  const amrFilename =
     packer.name +
     '-' +
     packer.version.replace(/\./g, '_') +

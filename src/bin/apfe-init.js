@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+import chalk from 'chalk'
 import { Command } from 'commander'
 import { existsSync as exists } from 'fs'
 import path from 'path'
 import home from 'user-home'
-import chalk from 'chalk'
 import inquirer from 'inquirer'
 import { fatal, success } from '../lib/logger'
 import { generate } from '../lib/generate'
@@ -68,7 +68,7 @@ rawName = rawName.replace(/^~/, home)
 const inPlace = !rawName || rawName === '.'
 const to = path.resolve(rawName || '.')
 const name = (function () {
-  let m = inPlace ? path.relative('../', process.cwd()) : rawName
+  const m = inPlace ? path.relative('../', process.cwd()) : rawName
   return path.basename(m)
 }())
 
@@ -87,7 +87,7 @@ if (exists(to)) {
     message: inPlace
       ? 'Generate project in current directory?'
       : 'Target directory exists. Continue?',
-    name: 'ok'
+    name: 'ok',
   }], function (answers) {
     if (answers.ok) {
       run()

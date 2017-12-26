@@ -249,19 +249,19 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
                 !node.specifiers ||
                 !node.specifiers.length) return false
 
-              let source = node.specifiers[0]
+              const source = node.specifiers[0]
               if (source.type !== 'ImportDefaultSpecifier') return false
 
-              let localName = source.local && source.local.name
+              const localName = source.local && source.local.name
               if (!localName) return false
 
               const reg = new RegExp(`${alias}biz-apps/[A-Za-z0-9_-]+/${importPath}/?.*`)
               return reg.test(node.source.value)
             })
 
-          for (let declaration of declarations) {
+          for (const declaration of declarations) {
             const requirePath = declaration.source.value
-            for (let app of apps) {
+            for (const app of apps) {
               const localName = declaration.specifiers[0].local.name
               const reg = new RegExp(`^${alias}biz-apps/${app.name}/${importPath}/?.*`)
               if (reg.test(requirePath)) {
@@ -274,7 +274,7 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
           }
 
           // delete the unused variable according to current apps
-          for (let app of apps) {
+          for (const app of apps) {
             unusedImportVars.delete(app.variableName)
           }
 
@@ -284,7 +284,7 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
             if (exp.type === 'ImportDeclaration') {
               lastIndexImport = index
               if (exp.specifiers && exp.specifiers.length) {
-                let source = exp.specifiers[0]
+                const source = exp.specifiers[0]
                 if (source.type === 'ImportDefaultSpecifier') {
                   const localName = source.local && source.local.name
                   if (unusedImportVars.has(localName)) {
@@ -309,7 +309,7 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
 
           path.node.body = body
         },
-      }
+      },
     }
   }
 }

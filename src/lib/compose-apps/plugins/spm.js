@@ -2,10 +2,10 @@ import {
   babelTransform,
   duplicateImportPlugin,
   babelAppsFactory,
-  spreadLocalePlugin
+  spreadLocalePlugin,
 } from '../utils'
 import {
-  composePlugin
+  composePlugin,
 } from '../plugin-factory'
 
 // 1. change the container app's constants/spm.js files, import and use the biz-apps constants/spm.js
@@ -50,7 +50,7 @@ export default composePlugin('spm', `${IMPORT_PATH}.js`, async (scripts, project
       plugins: [
         duplicateImportPlugin(ctx, config, IMPORT_PATH),
         spreadLocalePlugin(ctx),
-      ]
+      ],
     }
   )
 })

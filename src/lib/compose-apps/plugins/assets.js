@@ -3,7 +3,7 @@ import { warn, success } from '../../logger'
 import {
   babelTransform,
   duplicateArrayChecker,
-  babelAppsFactory
+  babelAppsFactory,
 } from '../utils'
 import chalk from 'chalk'
 import { composePlugin } from '../plugin-factory'
@@ -78,7 +78,7 @@ function assetsPlugin (bizapps, config) {
     name: 'container',
     required: false,
     called: false,
-    variableName: 'allIcons'
+    variableName: 'allIcons',
   }
   const apps = bizapps.map(babelAppsFactory(config.assets))
 
@@ -104,7 +104,7 @@ function assetsPlugin (bizapps, config) {
 
             const idName = declarator.id.name
             if (idName === container.variableName) {
-              for (let app of apps) {
+              for (const app of apps) {
                 if (!app.required) {
                   path.insertAfter(
                     t.variableDeclaration(
@@ -133,7 +133,7 @@ function assetsPlugin (bizapps, config) {
             !(node.callee && node.callee.name === 'importAll')) return
 
           if (arg1.name === container.variableName) {
-            for (let app of apps) {
+            for (const app of apps) {
               if (!app.called) {
                 path.insertAfter(
                   t.callExpression(t.identifier('importAll'),
@@ -171,11 +171,11 @@ function assetsPlugin (bizapps, config) {
                 declarations.property.name === 'context'
             })
 
-          for (let declaration of declarations) {
+          for (const declaration of declarations) {
             const declarator = declaration.declarations[0]
             const varName = declarator.id.name
             const requirePath = declarator.init.arguments[0].value
-            for (let app of apps) {
+            for (const app of apps) {
               const reg = new RegExp(`^${alias}biz-apps/${app.name}/assets/icons`)
               if (reg.test(requirePath)) {
                 app.required = true
@@ -190,7 +190,7 @@ function assetsPlugin (bizapps, config) {
           }
 
           // filter the real unused variable
-          for (let app of apps) {
+          for (const app of apps) {
             if (unusedRequireContextVarNames.has(app.variableName)) {
               unusedRequireContextVarNames.delete(app.variableName)
             }
@@ -204,10 +204,10 @@ function assetsPlugin (bizapps, config) {
               return expressType && callType
             })
 
-          for (let expression of expressions) {
+          for (const expression of expressions) {
             const callExp = expression.expression
             const args = callExp.arguments || [{ value: void 0 }]
-            for (let app of apps) {
+            for (const app of apps) {
               if (app.variableName === args[0].name) {
                 app.called = true
               } else if (app.variableName === container.variableName) {
@@ -216,7 +216,7 @@ function assetsPlugin (bizapps, config) {
             }
           }
         },
-      }
+      },
     }
   }
 }

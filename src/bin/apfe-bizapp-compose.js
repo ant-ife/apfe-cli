@@ -89,7 +89,7 @@ function validCwd () {
     'src/store/index.js',
   ]
 
-  for (let file of validationPaths) {
+  for (const file of validationPaths) {
     const jf = join(cwd, file)
     if (!existsFile(jf)) {
       error("It's not a valid A+ project, composing failed...")

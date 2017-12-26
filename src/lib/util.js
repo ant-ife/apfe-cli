@@ -36,7 +36,7 @@ export function confirm (message, cb) {
   inquirer.prompt([{
     type: 'confirm',
     message: message,
-    name: 'confirm'
+    name: 'confirm',
   }], function (answers) {
     if (answers.confirm) {
       cb()

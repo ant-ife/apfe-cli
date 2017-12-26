@@ -26,20 +26,20 @@ const packerConfig = {
   description: '',
   build: {
     include: [
-      './**/*'
+      './**/*',
     ],
     ignore: [
       './**/*.md',
       './**/*.map',
-    ]
+    ],
   },
-  'biz-apps': []
+  'biz-apps': [],
 }
 
 const inputMap = {
   name: 'input the offline-package name',
   author: 'input the package author',
-  description: 'input the description'
+  description: 'input the description',
 }
 
 entry()
@@ -53,7 +53,7 @@ function preCheck () {
 
   // 2. has bizApps
   return globby(['*'], {
-    cwd: BIZ_APPS_PATH
+    cwd: BIZ_APPS_PATH,
   }).then(res => {
     if (res.length) {
       bizApps = res
@@ -69,13 +69,13 @@ function _mapInputMessage (map) {
     .map(name => ({
       name,
       type: 'input',
-      message: map[name]
+      message: map[name],
     }))
   return res.concat([{
     type: 'checkbox',
     message: 'select bizApps, check/uncheck with spacebar',
     name: 'biz-apps',
-    choices: bizApps.map(name => ({name}))
+    choices: bizApps.map(name => ({name})),
   }])
 }
 
@@ -84,7 +84,7 @@ function generateFile (packerConfig) {
   const PACKER_PATH = path.join(CWD, packerConfig.name)
   fs.ensureDirSync(PACKER_PATH)
   fs.writeJSONSync(path.join(PACKER_PATH, 'packer.json'), packerConfig, {
-    spaces: 2
+    spaces: 2,
   })
 
   // 2. copy hook.js

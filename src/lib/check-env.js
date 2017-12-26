@@ -24,7 +24,7 @@ export function checkIsInGitProject () {
     execSync('git rev-parse --is-inside-work-tree')
   } catch (error) {
     throw new Error(
-     'apfe update requires to be executed in a git project. Please init Git (https://git-scm.com)'
+      'apfe update requires to be executed in a git project. Please init Git (https://git-scm.com)'
     )
   }
 }
