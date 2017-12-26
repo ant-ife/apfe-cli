@@ -8,9 +8,7 @@ import globby from 'globby'
 import { warn, log, error } from '../lib/logger'
 import { existsFile } from '../lib/compose-apps/read-src'
 import checkVersion from '../lib/check-version'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 
 const program = new Command('apfe bizapp compose')
 

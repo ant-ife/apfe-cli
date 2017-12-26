@@ -9,9 +9,7 @@ import {
   spreadLocalePlugin,
 } from '../utils'
 import { basename } from 'path'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import { composePlugin } from '../plugin-factory'
 
 // 1. change the container app's i18n/locale/*.js files, add and use the biz-apps i18n/locale/*.js

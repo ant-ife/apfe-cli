@@ -8,9 +8,7 @@ import {
   getExportDefaultObjectValues,
 } from './utils'
 import { join, basename } from 'path'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 
 export const duplicateChecker = getValueFunc => filePath => async (project, config, next) => {
   const filename = basename(filePath)

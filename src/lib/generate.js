@@ -1,6 +1,4 @@
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import Metalsmith from 'metalsmith'
 import Handlebars from 'handlebars'
 import async from 'async'

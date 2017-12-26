@@ -4,9 +4,7 @@ import checkUpdate from '../lib/check-version'
 import fs from 'fs'
 import spawn from 'win-spawn'
 import path from 'path'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 
 const packageCommands = {
   init: 'generate a new project step-by-step, or by a template',

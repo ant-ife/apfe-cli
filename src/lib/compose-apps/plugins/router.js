@@ -8,9 +8,7 @@ import {
   parseAstWrapper,
 } from '../utils'
 import { composePlugin } from '../plugin-factory'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 
 // 1. change the container app's router/index.js methods, add the multiple sources
 /*

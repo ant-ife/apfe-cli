@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import { Command } from 'commander'
 import inquirer from 'inquirer'
 import { gitDiff } from '../lib/git-diff'

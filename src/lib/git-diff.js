@@ -1,11 +1,9 @@
-import {
-  shelljs,
-} from 'xutil'
 import os from 'os'
 import path from 'path'
 import fse from 'fs-extra'
 import deepmerge from 'deepmerge'
 import gitBranch from 'git-branch'
+import shelljs from 'shelljs'
 import globby from 'globby'
 import { error, success, warn } from './logger'
 import { checkWorkingDir } from './check-env'

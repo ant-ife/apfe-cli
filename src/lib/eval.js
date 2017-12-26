@@ -1,6 +1,4 @@
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 
 /**
  * Evaluate an expression in meta.json in the context of

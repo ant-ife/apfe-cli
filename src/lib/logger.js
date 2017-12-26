@@ -1,6 +1,4 @@
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import { format } from 'util'
 
 const prefix = '   apfe'

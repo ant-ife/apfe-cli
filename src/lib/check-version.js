@@ -1,8 +1,6 @@
 import request from 'request'
-import {
-  chalk,
-  semver,
-} from 'xutil'
+import chalk from 'chalk'
+import semver from 'semver'
 import packageConfig from '../../package.json'
 
 const moduleName = packageConfig.name

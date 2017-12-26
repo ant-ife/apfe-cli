@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import fs from 'fs-extra'
 import path from 'path'
 import gulp from 'gulp'

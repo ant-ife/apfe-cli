@@ -1,12 +1,10 @@
-import {
-  rimraf,
-} from 'xutil'
 import clone from 'git-clone'
 import os from 'os'
 import ora from 'ora'
 import { existsSync as exists } from 'fs'
 import { isLocalPath, getTemplatePath } from '../lib/local-path'
 import { log, error } from '../lib/logger'
+import { sync as rm } from 'rimraf'
 import path from 'path'
 import home from 'user-home'
 import inquirer from 'inquirer'
@@ -50,7 +48,7 @@ export function cloneGit (git) {
   const spinner = ora('cloning template...')
   const tmp = path.join(os.tmpdir(), 'apfe-git-template')
 
-  if (exists(tmp)) rimraf(tmp)
+  if (exists(tmp)) rm(tmp)
 
   spinner.start()
   log(`downloading ${git} for template...`)

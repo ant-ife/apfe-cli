@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import {
   Command,
 } from 'commander'

@@ -54,10 +54,12 @@
     "ora": "^0.2.1",
     "read-metadata": "^1.0.0",
     "request": "^2.67.0",
+    "rimraf": "^2.6.2",
+    "semver": "^5.4.1",
+    "shelljs": "^0.7.8",
     "user-home": "^2.0.0",
     "validate-npm-package-name": "^2.2.2",
-    "win-spawn": "^2.0.0",
-    "xutil": "^1.0.10"
+    "win-spawn": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

@@ -5,9 +5,7 @@ import {
   duplicateArrayChecker,
   babelAppsFactory,
 } from '../utils'
-import {
-  chalk,
-} from 'xutil'
+import chalk from 'chalk'
 import { composePlugin } from '../plugin-factory'
 import { join } from 'path'
 
