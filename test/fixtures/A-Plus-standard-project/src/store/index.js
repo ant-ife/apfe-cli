@@ -1,0 +1,11 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
+import autodebit from '~biz-apps/autodebit/store'
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  modules: {
+    autodebit,
+  },
+})

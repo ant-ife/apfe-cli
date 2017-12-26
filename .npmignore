@@ -1,0 +1,9 @@
+src/
+test/
+.npmignore
+.si.yml
+.babelrc
+.eslintrc.js
+.eslintignore
+.idea
+.code
