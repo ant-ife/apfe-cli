@@ -66,6 +66,7 @@
     "babel-eslint": "^7.1.1",
     "chai": "^3.5.0",
     "chai-fs": "^2.0.0",
+    "chalk": "^2.3.0",
     "eslint": "^4.14.0",
     "eslint-config-antife": "^1.0.0",
     "eslint-plugin-babel": "^4.1.1",
