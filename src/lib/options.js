@@ -78,8 +78,8 @@ function setDefault (opts, key, val) {
   const prompts = opts.prompts || (opts.prompts = {})
   if (!prompts[key] || typeof prompts[key] !== 'object') {
     prompts[key] = {
-      'type': 'string',
-      'default': val
+      type: 'string',
+      default: val,
     }
   } else {
     prompts[key]['default'] = val

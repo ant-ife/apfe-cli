@@ -1,4 +1,6 @@
-import chalk from 'chalk'
+import {
+  chalk,
+} from 'xutil'
 import Metalsmith from 'metalsmith'
 import Handlebars from 'handlebars'
 import async from 'async'
@@ -154,9 +156,9 @@ export function generate (name, src, dest, done) {
  * @param {String} originDir
  */
 export function generateUpdate (modules = [],
-                                src,
-                                dest,
-                                originDir = process.cwd()) {
+  src,
+  dest,
+  originDir = process.cwd()) {
   return new Promise((resolve, reject) => {
     const opts = getMetadata(src)
     const metalsmith = Metalsmith(path.join(src, 'template'))

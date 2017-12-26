@@ -23,7 +23,8 @@ export default class Ware {
   }
 
   compose () {
-    const middlewares = this.fns, that = this
+    const middlewares = this.fns
+    const that = this
     if (!Array.isArray(middlewares)) throw new TypeError('Middleware stack must be an array!')
     for (const fn of middlewares) {
       if (typeof fn !== 'function') throw new TypeError('Middleware must be composed of functions!')
@@ -37,7 +38,7 @@ export default class Ware {
       function dispatch (i) {
         if (i <= index) return Promise.reject(new Error('next() called multiple times'))
         index = i
-        let fn = middlewares[i]
+        const fn = middlewares[i]
         if (!fn) return Promise.resolve()
 
         try {

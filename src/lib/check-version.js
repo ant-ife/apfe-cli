@@ -1,6 +1,8 @@
 import request from 'request'
-import semver from 'semver'
-import chalk from 'chalk'
+import {
+  chalk,
+  semver,
+} from 'xutil'
 import packageConfig from '../../package.json'
 
 const moduleName = packageConfig.name
@@ -16,7 +18,7 @@ export default function () {
 
     request({
       url: `https://registry.npmjs.org/${moduleName}`,
-      timeout: 1000
+      timeout: 1000,
     }, function (err, res, body) {
       if (err) {
         // if error, ignore check

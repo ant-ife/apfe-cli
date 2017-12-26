@@ -1,11 +1,11 @@
-var async = require('async')
-var inquirer = require('inquirer')
-var evaluate = require('./eval')
+const async = require('async')
+const inquirer = require('inquirer')
+const evaluate = require('./eval')
 
 // Support types from prompt-for which was used before
-var promptMapping = {
+const promptMapping = {
   string: 'input',
-  boolean: 'confirm'
+  boolean: 'confirm',
 }
 
 /**
@@ -37,7 +37,7 @@ function prompt (data, key, prompt, done) {
     return done()
   }
 
-  var promptDefault = prompt.default
+  let promptDefault = prompt.default
   if (typeof prompt.default === 'function') {
     promptDefault = function () {
       return prompt.default.bind(this)(data)
@@ -50,7 +50,7 @@ function prompt (data, key, prompt, done) {
     message: prompt.message || prompt.label || key,
     default: promptDefault,
     choices: prompt.choices || [],
-    validate: prompt.validate || function () { return true }
+    validate: prompt.validate || function () { return true },
   }], function (answers) {
     if (Array.isArray(answers[key])) {
       data[key] = {}

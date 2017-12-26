@@ -7,7 +7,9 @@ import { error } from '../lib/logger'
 import { generateBizApp } from '../lib/generate'
 import { confirm, normalizeTemplate } from '../lib/util'
 import { existsSync as exists } from 'fs'
-import chalk from 'chalk'
+import {
+  chalk,
+} from 'xutil'
 
 const program = new Command('apfe bizapp create')
 

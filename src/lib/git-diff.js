@@ -1,6 +1,8 @@
+import {
+  shelljs,
+} from 'xutil'
 import os from 'os'
 import path from 'path'
-import shell from 'shelljs'
 import fse from 'fs-extra'
 import deepmerge from 'deepmerge'
 import gitBranch from 'git-branch'
@@ -12,8 +14,9 @@ import Ware from './ware'
 
 function exec (command, logOutput) {
   return new Promise((resolve, reject) => {
-    let stderr, stdout = ''
-    const child = shell.exec(command, { async: true, silent: true })
+    let stderr
+    let stdout = ''
+    const child = shelljs.exec(command, { async: true, silent: true })
 
     child.stdout.on('data', data => {
       stdout += data
@@ -59,7 +62,8 @@ export async function gitDiff (template, modules = [], verbose) {
 
     // generate template according modules in tmpDir
     const { opts } = await generateUpdate(modules, template, tmpDir)
-    const ware = new Ware(), usedModules = []
+    const ware = new Ware()
+    const usedModules = []
     ware
       .use(diffSettings)
 
@@ -140,7 +144,9 @@ async function diffSettings (modules, usedModules, opts, tmpDir, next) {
     }
   })
 
-  let pkgjson = {}, replaceFiles = [], pkgName = 'package.json'
+  let pkgjson = {}
+  let replaceFiles = []
+  const pkgName = 'package.json'
   settings.forEach(filter => {
     if (filter[pkgName]) {
       pkgjson = deepmerge(pkgjson, filter[pkgName])

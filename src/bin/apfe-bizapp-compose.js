@@ -8,7 +8,9 @@ import globby from 'globby'
 import { warn, log, error } from '../lib/logger'
 import { existsFile } from '../lib/compose-apps/read-src'
 import checkVersion from '../lib/check-version'
-import chalk from 'chalk'
+import {
+  chalk,
+} from 'xutil'
 
 const program = new Command('apfe bizapp compose')
 
@@ -89,7 +91,7 @@ function validCwd () {
     'src/store/index.js',
   ]
 
-  for (let file of validationPaths) {
+  for (const file of validationPaths) {
     const jf = join(cwd, file)
     if (!existsFile(jf)) {
       error("It's not a valid A+ project, composing failed...")

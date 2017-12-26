@@ -18,7 +18,7 @@ export default function readSrc (src, ...apps) {
     throw new Error(`${LOGGER_PREFIX} requires at least one app`)
   }
 
-  for (let app of apps) {
+  for (const app of apps) {
     if (!app) throw new Error(`${LOGGER_PREFIX} ${app} of biz-app args is not a valid biz-app`)
   }
 
@@ -28,7 +28,7 @@ export default function readSrc (src, ...apps) {
 
   return {
     bizapps: bizapps.map(app => new App(app)),
-    container: new App(container)
+    container: new App(container),
   }
 }
 
@@ -37,7 +37,7 @@ function isValidContainerApp (container) {
     'libs/vue-init.js',
     'store/index.js',
     'router/index.js',
-    'entry/index.js'
+    'entry/index.js',
   ]
 
   validAppFileRequires.forEach(file => {

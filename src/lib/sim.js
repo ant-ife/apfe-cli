@@ -3,10 +3,10 @@ import IOSSimulator from 'ios-simulator'
 
 import {
   success,
-  error
+  error,
 } from './logger'
 import {
-  choose
+  choose,
 } from './util'
 
 const CHECK_MAX_COUNT = 20
@@ -23,7 +23,10 @@ const CHECK_MAX_COUNT = 20
  * @access public
  */
 async function create (cb) {
-  let myDeviceName, myRunTime, myDeviceType, myDid
+  let myDeviceName
+  let myRunTime
+  let myDeviceType
+  let myDid
 
   try {
     myRunTime = await chooseRunTime()
@@ -180,7 +183,7 @@ function chooseDeviceType () {
     name: 'deviceType',
     message: 'Please select device type',
     choices: deviceTypes,
-    default: deviceTypes[0]
+    default: deviceTypes[0],
   }).then(res => {
     return deviceTypes.find(r => r.value === res.deviceType)
   })
@@ -247,9 +250,9 @@ function findDevices () {
     const devices = []
     match.forEach((device) => {
       const info = device.match(/.*(apfe-sim.*?) \((.*?)\) \((.*?)\)/i)
-      const name = info[1],
-        did = info[2],
-        status = info[3]
+      const name = info[1]
+      const did = info[2]
+      const status = info[3]
 
       devices.push({name: name, did: did, status: status})
     })
@@ -406,5 +409,5 @@ export {
   start,
   install,
   remove,
-  openUrl
+  openUrl,
 }

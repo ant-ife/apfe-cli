@@ -92,14 +92,16 @@ function storePlugins (project, config) {
                     .filter(arg => !unusedImportVars.has(arg.key.name))
                   const filterSet = new Set(modules.map(arg => arg.key.name))
                   const identifiers = apps
-                    .filter(app => !app.called && !filterSet.has(app.variableName))
+                    .filter(app => !app.called &&
+                      !filterSet.has(app.variableName)
+                    )
                     .map(app => t.identifier(app.variableName))
                   valueExpression.properties = modules.concat(identifiers)
                 }
               }
             }
           },
-        }
+        },
       }
     }
   }

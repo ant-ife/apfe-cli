@@ -1,4 +1,6 @@
-var chalk = require('chalk')
+import {
+  chalk,
+} from 'xutil'
 
 /**
  * Evaluate an expression in meta.json in the context of
@@ -7,7 +9,7 @@ var chalk = require('chalk')
 
 module.exports = function evaluate (exp, data) {
   /* eslint-disable no-new-func */
-  var fn = new Function('data', 'with (data) { return ' + exp + '}')
+  const fn = new Function('data', 'with (data) { return ' + exp + '}')
   try {
     return fn(data)
   } catch (e) {

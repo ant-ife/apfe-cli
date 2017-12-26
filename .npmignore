@@ -1,9 +1,11 @@
 src/
 test/
+coverage/
 .npmignore
-.si.yml
 .babelrc
 .eslintrc.js
 .eslintignore
 .idea
 .code
+*.sw*
+*.un~

@@ -8,7 +8,9 @@ import {
   getExportDefaultObjectValues,
 } from './utils'
 import { join, basename } from 'path'
-import chalk from 'chalk'
+import {
+  chalk,
+} from 'xutil'
 
 export const duplicateChecker = getValueFunc => filePath => async (project, config, next) => {
   const filename = basename(filePath)
@@ -24,7 +26,7 @@ export const duplicateChecker = getValueFunc => filePath => async (project, conf
 
       return {
         name: `${app.name}/${filePath}`,
-        array: getValueFunc(join(app.path, res[0]))
+        array: getValueFunc(join(app.path, res[0])),
       }
     })
     .catch(_ => warn(`${logPrefix} transform ${app.path} failed`))
@@ -39,7 +41,7 @@ export const duplicateChecker = getValueFunc => filePath => async (project, conf
   let bizappCheckers = await Promise.all(bizapps.map(
     checkerObject(app =>
       warn(`Could not find ${app.path}/${filePath}.js, skip to next one`))
-    )
+  )
   )
   bizappCheckers = bizappCheckers.filter(Boolean)
 

@@ -45,7 +45,7 @@ function exportKey () {
       const target = path.join(targetPath, f)
       const src = path.join(srcPath, f)
       fs.copySync(src, target, {
-        overwrite: true
+        overwrite: true,
       })
     })
 

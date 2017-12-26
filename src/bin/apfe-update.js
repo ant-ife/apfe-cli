@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import {
+  chalk,
+} from 'xutil'
 import { Command } from 'commander'
-import chalk from 'chalk'
 import inquirer from 'inquirer'
 import { gitDiff } from '../lib/git-diff'
 import { remoteGit} from '../lib/defaults'
@@ -10,7 +12,8 @@ import { fatal } from '../lib/logger'
 import checkVersion from '../lib/check-version'
 import { getMetadataKeys } from '../lib/options'
 
-let args, metaDataKeysStr = 'lint, babel, webpack, flow'
+let args
+let metaDataKeysStr = 'lint, babel, webpack, flow'
 
 const program = new Command('apfe update')
 
@@ -59,7 +62,7 @@ function help () {
     inquirer.prompt([{
       type: 'confirm',
       message: `confirm to update ${args.join(', ')}`,
-      name: 'ok'
+      name: 'ok',
     }], function (answers) {
       if (answers.ok) {
         run()
@@ -100,12 +103,12 @@ const apfeUpdateDefaultHandle = function () {
   })
 
   Promise.race([metadataKey, timeout])
-  .then(function () {
-    program.help()
-  })
-  .catch(function () {
-    program.help()
-  })
+    .then(function () {
+      program.help()
+    })
+    .catch(function () {
+      program.help()
+    })
 }
 
 help()

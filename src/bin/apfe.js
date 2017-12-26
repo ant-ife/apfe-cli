@@ -4,7 +4,9 @@ import checkUpdate from '../lib/check-version'
 import fs from 'fs'
 import spawn from 'win-spawn'
 import path from 'path'
-import chalk from 'chalk'
+import {
+  chalk,
+} from 'xutil'
 
 const packageCommands = {
   init: 'generate a new project step-by-step, or by a template',
@@ -96,7 +98,9 @@ function getLevenshteinSteps (s, t) {
   if (n === 0) return m
   if (m === 0) return n
 
-  let d = [], i, j
+  const d = []
+  let i
+  let j
 
   for (i = 0; i <= n; i++) {
     d[i] = []
@@ -109,12 +113,12 @@ function getLevenshteinSteps (s, t) {
 
   for (i = 1; i <= n; i++) {
     for (j = 1; j <= m; j++) {
-      let cost = s[i] === t[j] ? 0 : 1
+      const cost = s[i] === t[j] ? 0 : 1
 
       d[i][j] = Math.min(
         d[i - 1][j] + 1, // a deletion
         d[i][j - 1] + 1, // an insertion
-        d[i - 1][j - 1] + cost  // a substitution
+        d[i - 1][j - 1] + cost // a substitution
       )
     }
   }
@@ -128,10 +132,10 @@ function getSimilarCommands (cmd, commands) {
     if (_cache[s + t]) {
       return _cache[s + t]
     }
-    let min = Math.min(s.length, t.length)
-    let max = Math.max(s.length, t.length)
+    const min = Math.min(s.length, t.length)
+    const max = Math.max(s.length, t.length)
     if (max >= 3 * min) return 0
-    let similar = 1 - getLevenshteinSteps(s, t) / max
+    const similar = 1 - getLevenshteinSteps(s, t) / max
     _cache[s + t] = similar
     return similar
   }

@@ -22,5 +22,5 @@ function doSign (file, cb) {
 }
 
 export default {
-  doSign
+  doSign,
 }
