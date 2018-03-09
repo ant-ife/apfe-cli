@@ -9,6 +9,7 @@ program
   .command('genkey', 'generate the RSA key pairs')
   .command('exportkey', 'export the RSA key pairs')
   .command('init', 'init offline package')
+  .command('build', 'only build offline package without biz-apps')
   .command('pack', 'pack offline package', {
     isDefault: true,
   })
