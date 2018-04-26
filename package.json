@@ -1,8 +1,7 @@
 {
   "name": "apfe-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Alipay+ Sub-app ToolKit",
-  "homepage": "https://github.com/ant-ife/apfe-cli",
   "keywords": [
     "Alipay+",
     "ToolKit",
@@ -59,7 +58,8 @@
     "shelljs": "^0.7.8",
     "user-home": "^2.0.0",
     "validate-npm-package-name": "^2.2.2",
-    "win-spawn": "^2.0.0"
+    "win-spawn": "^2.0.0",
+    "xutil": "^1.0.11"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

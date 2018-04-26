@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import checkUpdate from '../lib/check-version'
-import fs from 'fs'
 import spawn from 'win-spawn'
 import path from 'path'
 import chalk from 'chalk'
+import _ from 'xutil'
 
 const packageCommands = {
   init: 'generate a new project step-by-step, or by a template',
@@ -48,12 +48,19 @@ function exec () {
 
     const bin = executable(helpcmd)
     if (bin) {
-      spawn(bin, ['--help'], { stdio: 'inherit', customFds: [0, 1, 2] })
+      spawn(bin, ['--help'], {
+        stdio: 'inherit',
+        customFds: [0, 1, 2]
+      })
     }
   } else {
     const bin = executable(subcmd)
+    console.log(bin)
     if (bin) {
-      spawn(bin, process.argv.slice(3), { stdio: 'inherit', customFds: [0, 1, 2] })
+      spawn(bin, process.argv.slice(3), {
+        stdio: 'inherit',
+        customFds: [0, 1, 2]
+      })
     }
   }
 }
@@ -63,7 +70,8 @@ function executable (subcmd) {
   const bin = 'apfe-' + subcmd + '.js'
 
   const local = path.join(__dirname, bin)
-  if (fs.existsSync(local)) {
+
+  if (_.isExistedFile(local)) {
     return
   }
 
