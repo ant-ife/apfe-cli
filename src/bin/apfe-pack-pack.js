@@ -320,11 +320,7 @@ function signTar (distPath, files, cb) {
  * @param {Function} cb callback
  */
 function gulpPkg (options, packer, cb) {
-  const amrFilename =
-    packer.name +
-    '-' +
-    packer.version.replace(/\./g, '_') +
-    '-TAR.amr'
+  const amrFilename = `${packer.appid}_${packer.version}.zip`
 
   const packageDir = PACKAGE_DIR + '/' + packer.version
   const amrPath = path.join(ROOT_PATH, packageDir + '/' + amrFilename)
