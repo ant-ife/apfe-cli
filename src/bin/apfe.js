@@ -55,7 +55,6 @@ function exec () {
     }
   } else {
     const bin = executable(subcmd)
-    console.log(bin)
     if (bin) {
       spawn(bin, process.argv.slice(3), {
         stdio: 'inherit',
