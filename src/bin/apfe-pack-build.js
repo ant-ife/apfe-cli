@@ -269,9 +269,9 @@ function signTar (distPath, files, cb) {
 
 /**
  * gulpPkg
- * build the target amr type package
+ * build the target zip type package
  * 1. zip the _dist path
- * 2. generate the *.amr in ./_package
+ * 2. generate the *.zip in ./_package
  *
  * @name gulpPkg
  * @function
@@ -281,11 +281,7 @@ function signTar (distPath, files, cb) {
  * @param {Function} cb callback
  */
 function gulpPkg (options, packer, cb) {
-  const amrFilename =
-    packer.appid +
-    '-' +
-    packer.version.replace(/\./g, '_') +
-    '-TAR.amr'
+  const amrFilename = `${packer.appid}_${packer.version}.zip`
 
   const packageDir = PACKAGE_DIR + '/' + packer.version
   const amrPath = path.join(ROOT_PATH, packageDir + '/' + amrFilename)
