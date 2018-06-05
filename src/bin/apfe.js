@@ -50,7 +50,7 @@ function exec () {
     if (bin) {
       spawn(bin, ['--help'], {
         stdio: 'inherit',
-        customFds: [0, 1, 2]
+        customFds: [0, 1, 2],
       })
     }
   } else {
@@ -58,7 +58,7 @@ function exec () {
     if (bin) {
       spawn(bin, process.argv.slice(3), {
         stdio: 'inherit',
-        customFds: [0, 1, 2]
+        customFds: [0, 1, 2],
       })
     }
   }

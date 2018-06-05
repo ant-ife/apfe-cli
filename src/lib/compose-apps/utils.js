@@ -7,10 +7,13 @@ import { resolve } from 'path'
 import * as babylon from 'babylon'
 import camelcase from 'camelcase'
 import { warn } from '../logger'
+import Debug from 'debug'
+
+const debug = Debug('babel:util')
 
 export const loggerPrefix = prefix => `***[compose ${prefix}]***`
 
-// bable-handbook: https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/plugin-handbook.md
+// babel-handbook: https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/plugin-handbook.md
 export function babelTransform (file, options) {
   return new Promise((resolve, reject) => {
     babel.transformFile(file, {
@@ -29,7 +32,7 @@ export function babelTransform (file, options) {
       try {
         beautifulFile(file)
       } catch (err) {
-
+        warn('format file failed', err)
       }
       resolve(result)
     })
@@ -279,10 +282,8 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
           }
 
           // filter the needed node, do not use the unusedImportVars node
-          let lastIndexImport = 0
-          body = body.filter((exp, index) => {
+          body = body.filter(exp => {
             if (exp.type === 'ImportDeclaration') {
-              lastIndexImport = index
               if (exp.specifiers && exp.specifiers.length) {
                 const source = exp.specifiers[0]
                 if (source.type === 'ImportDefaultSpecifier') {
@@ -305,7 +306,8 @@ export function duplicateImportPlugin (ctx, config, importPath, filename) {
             ))
 
           // insert the needed imports under the lastImport node
-          body.splice(lastIndexImport, 0, ...importIdentiers)
+          debug(`body is ${body}`)
+          body.splice(0, 0, ...importIdentiers)
 
           path.node.body = body
         },

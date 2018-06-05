@@ -81,8 +81,7 @@ export async function gitDiff (template, modules = [], verbose) {
     await exec('git commit -m "Project snapshot"', false)
 
     success('Generate the patch between the 2 versions')
-    const diffOutput = await
-      exec(`git diff --binary --no-color ${originBranch} ${branch}`, verbose)
+    const diffOutput = await exec(`git diff --binary --no-color ${originBranch} ${branch}`, verbose)
 
     success('Save the patch in tmp directory')
     patchPath =
