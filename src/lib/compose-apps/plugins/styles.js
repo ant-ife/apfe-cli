@@ -2,6 +2,10 @@ import glob from 'glob'
 import { warn, success } from '../../logger'
 import { readFile, writeFile } from 'fs-extra'
 import { composePlugin } from '../plugin-factory'
+import * as R from 'ramda'
+import Debug from 'debug'
+
+const logStyles = Debug('compose-style-plugin')
 
 /*
 // Core
@@ -99,12 +103,18 @@ export default composePlugin(
 
       for (const unusedApp of unusedApps) {
         const importPath = `../biz-apps/${unusedApp}/styles/index.less`
-        fileContent = fileContent.replace(new RegExp(`@import\\s+['"]${importPath}['"];`), '')
+        fileContent = fileContent.replace(new RegExp(`@import\\s+['"]${importPath}['"];\n*`), '')
       }
+      logStyles('file content before is', fileContent)
 
       for (const app of apps) {
         if (!app.required) {
-          fileContent = `${fileContent}\n${app.module};`
+          let split = ''
+          if (R.last(fileContent) !== '\n') {
+            split = '\n'
+          }
+          fileContent = `${fileContent}${split}${app.module};`
+          logStyles('file content is', fileContent)
         }
       }
     }

@@ -13,7 +13,7 @@ const debug = Debug('babel:util')
 
 export const loggerPrefix = prefix => `***[compose ${prefix}]***`
 
-// bable-handbook: https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/plugin-handbook.md
+// babel-handbook: https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/plugin-handbook.md
 export function babelTransform (file, options) {
   return new Promise((resolve, reject) => {
     babel.transformFile(file, {
@@ -32,7 +32,7 @@ export function babelTransform (file, options) {
       try {
         beautifulFile(file)
       } catch (err) {
-
+        warn('format file failed', err)
       }
       resolve(result)
     })

@@ -10,7 +10,6 @@ import {
 import { composePlugin } from '../plugin-factory'
 import chalk from 'chalk'
 import * as R from 'ramda'
-import { Maybe } from 'ramda-fantasy'
 
 // 1. change the container app's router/index.js methods, add the multiple sources
 /*
@@ -102,30 +101,38 @@ function routesPlugins (project, config) {
     return function ({ types: t }) {
       return {
         visitor: {
-          CallExpression (path) {
-            if (path.container.type === 'ObjectProperty' &&
-              path.container.key.name === 'routes') {
-              const args = path.node.arguments
-                .filter(arg => !unusedImportVars.has(arg.name))
-              const filterSet = new Set(args.map(arg => arg.name))
-              const identifiers = apps
-                .filter(app => !app.called && !filterSet.has(app.variableName))
-                .map(app => t.identifier(app.variableName))
-              path.node.arguments = args.concat(identifiers)
-            }
-          },
+          MemberExpression (path) {
+            const isValid = R.allPass([
+              R.pathEq(['node', 'object', 'type'], 'ArrayExpression'),
+              R.pathEq(['node', 'property', 'name'], 'concat'),
+              x => {
+                const containerArgs = R.path(['container', 'arguments'], path)
+                if (!notEmptyArray(containerArgs)) {
+                  return false
+                }
 
-          ArrayExpression (path) {
-            if (path.container.key && path.container.key.name === 'routes') {
-              const identifiers = apps
-                .filter(app => !app.called)
-                .map(app => t.identifier(app.variableName))
-              path.replaceWith(
-                t.callExpression(
-                  t.memberExpression(path.node, t.identifier('concat')),
-                  identifiers
-                ),
-              )
+                const properties = R.path(['node', 'object', 'elements', 0, 'properties'], x)
+                if (notEmptyArray(properties)) {
+                  return isValidRoutesProperties(properties)
+                }
+
+                return false
+              },
+            ])
+
+            if (isValid(path)) {
+              const args = R.pipe(
+                R.path(['container', 'arguments']),
+                R.filter(arg => !unusedImportVars.has(arg.name)),
+              )(path)
+
+              const filterSet = new Set(R.map(R.prop('name'), args))
+              const identifiers = R.pipe(
+                R.filter(app => !app.called && !filterSet.has(app.variableName)),
+                R.map(app => t.identifier(app.variableName)),
+              )(apps)
+
+              path.container.arguments = args.concat(identifiers)
             }
           },
         },
@@ -139,12 +146,19 @@ function routesPlugins (project, config) {
   ]
 }
 
-const getArrayElementsPaths = ele => {
-  const properties = ele.properties.filter(p => p.key.name === 'path')[0]
-  return properties.value.value
-}
+const getArrayElementsPaths = R.pipe(
+  R.prop('properties'),
+  R.find(R.pathEq(['key', 'name'], 'path')),
+  R.path(['value', 'value'])
+)
+
+const isValidRoutesProperties = p => !R.isEmpty(R.intersection(
+  R.map(R.path(['key', 'name']), p),
+  ['meta', 'path', 'name'],
+))
 
 const isExist = R.complement(R.isNil)
+const notEmptyArray = R.both(isExist, R.complement(R.isEmpty))
 
 // Get this expression's routes.map(r => r.path)
 /*
@@ -163,13 +177,21 @@ const router = new Router({
  */
 function getContainerRoutesPathsArray (filePath, log) {
   const ast = parseAstWrapper(filePath)
+  const body = ast.program.body
   let res = []
   const firstDeclaration = R.path(['declarations', 0])
   const getRoutesElements = R.path(['init', 'callee', 'object', 'elements'])
   const isTypeDeclaration = R.propEq('type', 'VariableDeclaration')
 
   // two possible situations
-  const getNewExpDeclaration = R.allPass(
+  /* 1. within the new Route Expression
+    const router = new Router({
+      mode: 'history',
+      base: basePath,
+      routes: [...].concat(...),
+    })
+   */
+  const finder1 = R.allPass(
     [
       isTypeDeclaration,
       R.pipe(firstDeclaration, isExist),
@@ -179,25 +201,30 @@ function getContainerRoutesPathsArray (filePath, log) {
           R.pathEq(['init', 'callee', 'name'], 'Router'),
           R.pathEq(['init', 'arguments', 0, 'type'], 'ObjectExpression'),
           firstD => {
-            const properties = R.path(['init', 'arguments', 'properties'], firstD)
+            const properties = R.path(['init', 'arguments', 0, 'properties'], firstD)
             if (!properties || !properties.length) return false
             return R.any(p => {
               const key = R.path(['key', 'name'], p)
               const value = R.path(['value', 'type'], p)
-              return key === 'routes' && value !== 'Identifier'
+              return key === 'routes' && value === 'CallExpression'
             }, properties)
-          }
-        ]
-      ))
+          },
+        ],
+      )),
     ]
   )
-  const getNewProperites = R.pipe(
-    R.find(getNewExpDeclaration),
-    Maybe,
-    R.map(R.path(['declarations', 0, 'init', 'arguments', 'properties'])),
+  const mapper1 = R.pipe(
+    R.path(['declarations', 0, 'init', 'arguments', 0, 'properties']),
+    R.find(R.pathEq(['key', 'name'], 'routes')),
+    R.view(R.lensPath(['value', 'callee', 'object', 'elements'])),
+    R.map(getArrayElementsPaths)
   )
 
-  const getRoutesDeclaration = R.allPass(
+  /* 2. outside the new Route Expression
+   const routes = [...].concat(...)
+   const router = new Router(routes, ...)
+  */
+  const finder2 = R.allPass(
     [
       isTypeDeclaration,
       R.pipe(firstDeclaration, isExist),
@@ -216,43 +243,39 @@ function getContainerRoutesPathsArray (filePath, log) {
                       R.map(R.path(['key', 'name']), p),
                       ['meta', 'path', 'name']
                     ))
-                  }, 'properties')
+                  }, 'properties'),
                 ]
               )
-            ))
+            )),
           ]
         )
-      )
+      ),
     ]
   )
+  const mapper2 = R.pipe(
+    R.path(['declarations', 0, 'init', 'callee', 'object', 'elements']),
+    R.map(getArrayElementsPaths),
+  )
 
-  const variableDeclaration = R.find(R.or(getNewExpDeclaration, getRoutesDeclaration), ast.program.body)
+  const lookups = [
+    R.pipe(R.find(finder2), mapper2),
+    R.pipe(R.find(finder1), mapper1),
+  ]
 
+  for (let i = 0; i < lookups.length; i++) {
+    const f = lookups[i]
+    let r
+    try {
+      r = f(body)
+    } catch (err) {
 
-  const variableDeclaration1 = R.filter(getNewExpDeclaration, ast.program.body)
-  const variableDeclaration2 = R.filter(getRoutesDeclaration, ast.program.body)
-
-  console.log('hi')
-
-  try {
-    if (variableDeclaration.length === 1) {
-      const vDeclaration = variableDeclaration[0]
-      let properties = vDeclaration.declarations[0].init.arguments[0].properties
-      properties = properties.filter(p => p.key.name === 'routes')
-      if (properties.length === 1) {
-        const routerProp = properties[0]
-        let arrayExpElements = []
-        if (routerProp.value.type === 'CallExpression') {
-          arrayExpElements = routerProp.value.callee.object.elements
-        } else if (routerProp.value.type === 'ArrayExpression') {
-          arrayExpElements = routerProp.value.elements
-        }
-        res = arrayExpElements.map(getArrayElementsPaths)
-      }
     }
-  } catch (err) {
-  }
 
+    if (r && r.length) {
+      res = r
+      break
+    }
+  }
 
   if (!res || !res.length) {
     log && log(filePath)
