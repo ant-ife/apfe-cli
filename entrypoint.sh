@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd /src
+cd /root/src
 
 npm run ci
