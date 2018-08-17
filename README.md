@@ -14,7 +14,7 @@
 [node-image]: https://img.shields.io/badge/node.js-%3E=8-green.svg?style=flat-square
 [node-url]: http://nodejs.org/download/
 
-Alipay+ Sub-app ToolKit
+Alipay+ Subapp ToolKit
 
 ## Installation
 
@@ -22,6 +22,12 @@ Prerequisites: [Node.js](https://nodejs.org/en/) version 8+, npm version 5+ and 
 
 ```bash
 $ npm i -g apfe-cli
+```
+
+## Uasge
+
+```bash
+$ apfe -h
 ```
 
 <!-- GITCONTRIBUTOR_START -->
