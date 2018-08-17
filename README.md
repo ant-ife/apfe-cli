@@ -24,7 +24,7 @@ Prerequisites: [Node.js](https://nodejs.org/en/) version 8+, npm version 5+ and 
 $ npm i -g apfe-cli
 ```
 
-## Uasge
+## Usage
 
 ```bash
 $ apfe -h
