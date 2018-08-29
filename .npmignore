@@ -5,6 +5,9 @@ coverage/
 .babelrc
 .eslintrc.js
 .eslintignore
+.travis.yml
+entrypoint.sh
+Dockerfile
 .idea
 .code
 *.sw*
