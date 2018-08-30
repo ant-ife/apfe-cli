@@ -30,7 +30,7 @@
     "lint": "eslint ./src --ext .js --fix",
     "lint:dev": "esw ./src -w",
     "dev": "npm run lint:dev & npm run babel:dev",
-    "build": "rm -rf ./dist && npm run babel",
+    "build": "npm run lint && rm -rf ./dist && npm run babel",
     "mocha": "istanbul cover `npm bin`/_mocha test/scripts/test-bizapp-compose.js --slow 1000",
     "test": "npm run build && npm run mocha",
     "pub": "npm run build && npm publish",
@@ -80,8 +80,7 @@
     "shelljs": "^0.8.2",
     "user-home": "^2.0.0",
     "validate-npm-package-name": "^3.0.0",
-    "win-spawn": "^2.0.0",
-    "xutil": "^1.0.11"
+    "win-spawn": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

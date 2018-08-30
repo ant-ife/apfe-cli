@@ -11,7 +11,7 @@ import ask from './ask'
 import filter from './filter'
 import uuid from 'uuid/v4'
 import { readJsonSync } from 'fs-extra'
-import { existsFile } from './compose-apps/read-src'
+import { existsFile } from './exists'
 
 const render = handlebars.render
 const defaultMeta = (modules = [], dest) => {
@@ -48,45 +48,6 @@ Handlebars.registerHelper('toUpperCase', function (str) {
 })
 
 Handlebars.registerHelper('uuid', uuid)
-
-export function generateBizApp (name, src, dest) {
-  return new Promise((resolve, reject) => {
-    const opts = getOptions(name, src)
-    const metalsmith = Metalsmith(path.join(src, 'template'))
-    const data = Object.assign(metalsmith.metadata(), { name })
-    opts.helpers && Object.keys(opts.helpers).map(function (key) {
-      Handlebars.registerHelper(key, opts.helpers[key])
-    })
-
-    const helpers = { chalk, logger }
-
-    metalsmith
-      .use(renderTemplateFiles(opts.skipInterpolation))
-
-    if (typeof opts.metalsmith === 'function') {
-      opts.metalsmith(metalsmith, opts, helpers)
-    } else if (opts.metalsmith && typeof opts.metalsmith.after === 'function') {
-      opts.metalsmith.after(metalsmith, opts, helpers)
-    }
-
-    metalsmith
-      .clean(false)
-      .source('.')
-      .destination(dest)
-      .build(function (err, files) {
-        if (err) reject(err)
-        if (typeof opts.complete === 'function') {
-          const helpers = { chalk, logger, files }
-          opts.complete(data, dest, helpers)
-        }
-
-        if (typeof opts.completeMessage === 'string') {
-          logMessage(opts.completeMessage, data)
-        }
-        resolve()
-      })
-  })
-}
 
 /**
  * Generate a template given a `src` and `dest`.
