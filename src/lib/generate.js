@@ -17,11 +17,12 @@ const render = handlebars.render
 const defaultMeta = (modules = [], dest) => {
   const result = {}
   modules.forEach(module => {
-    if (module === 'offline-package') {
-      result['offline'] = true
-    } else {
-      result[module] = true
-    }
+    // if (module === 'offline-package') {
+    //   result['offline'] = true
+    // } else {
+    //   result[module] = true
+    // }
+    result[module] = true
   })
   return Object.assign(result, {
     destDirName: modules.join('-'),
@@ -92,7 +93,7 @@ export function generate (name, src, dest, done) {
   metalsmith.clean(false)
     .source('.') // start from template root instead of `./src` which is Metalsmith's default for `source`
     .destination(dest)
-    .build(function (err, files) {
+    .build((err, files) => {
       done(err)
       if (typeof opts.complete === 'function') {
         const helpers = { chalk, logger, files }
@@ -171,7 +172,7 @@ function originMeta (dir) {
   const origin = {
     flow: false,
     test: false,
-    offline: false,
+    // offline: false,
   }
 
   if (existsFile(path.join(dir, 'flow-typed/modules.js')) &&
@@ -183,9 +184,9 @@ function originMeta (dir) {
     origin.test = true
   }
 
-  if (existsFile(path.join(dir, 'offline-package'))) {
-    origin.offline = true
-  }
+  // if (existsFile(path.join(dir, 'offline-package'))) {
+  //   origin.offline = true
+  // }
 
   return Object.assign({
     name: oriJson.name,

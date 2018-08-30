@@ -1,7 +1,7 @@
 const path = require('path')
 const ROOT_PATH = process.cwd()
-const TEMP_PATH = path.join(ROOT_PATH, '_temp')
-const config = require(path.join(TEMP_PATH, 'build/config'))
+const DIST_PATH = path.join(ROOT_PATH, 'dist')
+const config = require(path.join(ROOT_PATH, 'build/config'))
 
 /**
  * Run before pack, doing the stuff synchronized
@@ -11,21 +11,20 @@ const config = require(path.join(TEMP_PATH, 'build/config'))
  */
 exports.beforePack = function (utils) {
   const fse = utils.fse
-  const walletPath = path.join(TEMP_PATH, '/dist')
 
-  if (walletPath === path.join(config.build.assetsRoot)) {
+  if (DIST_PATH === path.join(config.build.assetsRoot)) {
     return
   }
 
   try {
-    fse.emptyDirSync(walletPath)
+    fse.emptyDirSync(DIST_PATH)
   } catch (err) {
     console.log('failed to empty resoure files')
   }
 
   try {
-    fse.copySync(path.join(config.build.assetsRoot), walletPath)
-    fse.copySync(config.build.index, path.join(walletPath, '/index.html'))
+    fse.copySync(path.join(config.build.assetsRoot), DIST_PATH)
+    fse.copySync(config.build.index, path.join(DIST_PATH, 'index.html'))
   } catch (err) {
     console.log('failed to copy resoure files')
   }

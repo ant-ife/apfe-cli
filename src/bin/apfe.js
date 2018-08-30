@@ -1,23 +1,20 @@
 #!/usr/bin/env node
 
-import checkUpdate from '../lib/check-version'
+import checkSelfVersion from '../lib/check-version'
 import spawn from 'win-spawn'
 import path from 'path'
 import chalk from 'chalk'
-import _ from 'xutil'
+import { existsFile } from '../lib/exists'
 
-const packageCommands = {
-  update: 'update project\'s basic-settings, includes babel, eslint, webpack, etc.',
-  pack: 'pack the web app for offline use',
-  sim: 'debug web app in iOS simulator',
-  bizapp: 'bizapp operations, includes create and compose',
+const _commands = {
   create: 'create a new project',
+  update: 'update configs (babel, eslint, webpack...)',
+  pack: 'pack offline package',
+  sim: 'debug in iOS simulator',
 }
 
 if (Math.random() < 0.2) {
-  checkUpdate()
-    .then(exec)
-    .catch(exec)
+  checkSelfVersion().then(exec).catch(exec)
 } else {
   exec()
 }
@@ -28,11 +25,10 @@ function exec () {
   program
     .version(require('../../package').version, '-v, --version')
     .usage('<command> [options]')
-    .command('update', packageCommands.update)
-    .command('pack', packageCommands.pack)
-    .command('sim', packageCommands.sim)
-    .command('bizapp', packageCommands.bizapp)
     .command('create', _commands.create)
+    .command('update', _commands.update)
+    .command('pack', _commands.pack)
+    .command('sim', _commands.sim)
     .parse(process.argv)
 
   const subcmd = program.args[0]
@@ -70,11 +66,11 @@ function executable (subcmd) {
 
   const local = path.join(__dirname, bin)
 
-  if (_.isExistedFile(local)) {
+  if (existsFile(local)) {
     return
   }
 
-  let commands = Object.keys(packageCommands)
+  let commands = Object.keys(_commands)
 
   function printSimilar () {
     // guess commands

@@ -10,7 +10,7 @@ export default function () {
     // Ensure minimum supported node version is used
     if (!semver.satisfies(process.version, packageConfig.engines.node)) {
       return console.log(chalk.red(
-        '  You must upgrade node to >=' + packageConfig.engines.node + '.x to use apfe-cli'
+        '  You must upgrade Node.js to >=' + packageConfig.engines.node + '.x to use apfe-cli'
       ))
     }
 
