@@ -7,12 +7,6 @@
     "CLI",
     "FrontEnd"
   ],
-  "contributors": [
-    "xiekw2010 <xiekw2010@gmail.com>",
-    "brucejcw <bruce.jcw@gmail.com>",
-    "elrrrrrrr <elrrrrrrr@gmail.com>",
-    "jsw0528 <i@mrzhang.me>"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ant-ife/apfe-cli.git"
@@ -35,7 +29,8 @@
     "test": "npm run build && npm run mocha",
     "pub": "npm run build && npm publish",
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
-    "ci": "npm run lint"
+    "ci": "npm run lint",
+    "contributor": "git-contributor"
   },
   "husky": {
     "hooks": {
@@ -92,6 +87,7 @@
     "eslint-config-antife": "^1.0.3",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-watch": "^4.0.2",
+    "git-contributor": "^1.0.8",
     "husky": "^1.0.0-rc.13",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0"
