@@ -45,7 +45,7 @@ function archiving (subapp, cb) {
   }
 
   let distSrc = ['./dist/**/*'] // Defaults include all filse in dist dir
-  const files84 = []
+  const tarFiles = []
 
   // parse include files
   if (Array.isArray(subapp.includes) && subapp.includes.length > 0) {
@@ -70,29 +70,29 @@ function archiving (subapp, cb) {
     // console.log('Start gulp task: tar')
 
     return gulp
-      .src(TEMP_DIR + '/84/_tar/dist/**/*')
+      .src(TEMP_DIR + '/_tar/dist/**/*')
       .pipe(tar(subapp.id + '.tar'))
-      .pipe(gulp.dest(TEMP_DIR + '/84'))
+      .pipe(gulp.dest(TEMP_DIR))
   })
 
-  gulp.task('cert84', ['tar'], () => {
-    // console.log('Start gulp task: cert84')
+  gulp.task('cert', ['tar'], () => {
+    // console.log('Start gulp task: cert')
 
-    const _tarPath = TEMP_PATH + '/84/_tar'
+    const _tarPath = TEMP_PATH + '/_tar'
     if (fs.existsSync(_tarPath)) {
       fs.removeSync(_tarPath)
     }
 
-    const rtv = gulp.src(TEMP_DIR + '/84/**/*')
+    const rtv = gulp.src(TEMP_DIR + '/**/*')
     function scanPipe (files) {
       function fn (file, cb) {
         !file.isDirectory() && files.push(file.relative)
       }
       return map(fn)
     }
-    rtv.pipe(scanPipe(files84))
+    rtv.pipe(scanPipe(tarFiles))
     rtv.on('end', () => {
-      signTar(TEMP_PATH + '/84', files84, () => {
+      signTar(TEMP_PATH, tarFiles, () => {
         const _options = {
           tar: true,
         }
@@ -102,21 +102,21 @@ function archiving (subapp, cb) {
     return rtv
   })
 
-  gulp.task('dist84', () => {
-    // console.log('Start gulp task: dist84')
+  gulp.task('dist', () => {
+    // console.log('Start gulp task: dist')
 
     const src = gulp.src(distSrc).on('end', () => {
       // build Manifest.xml
       // buildManifestSync(subapp, TEMP_PATH, true)
 
       setTimeout(() => {
-        gulp.start('cert84')
+        gulp.start('cert')
       }, 500)
     })
 
     src.pipe(
       gulp.dest((file) => {
-        let distDir = TEMP_DIR + '/84/_tar'
+        let distDir = TEMP_DIR + '/_tar'
         if (file.base.indexOf(ROOT_PATH) > -1) {
           distDir += file.base.replace(ROOT_PATH, '')
         }
@@ -125,7 +125,7 @@ function archiving (subapp, cb) {
     )
   })
 
-  gulp.start('dist84')
+  gulp.start('dist')
 }
 
 /**
@@ -228,7 +228,7 @@ function packSubapp (config) {
 //     out.push('  <version>' + subapp.version + '</version>')
 //     out.push('</package>')
 //     const outStr = out.join('\n')
-//     fs.outputFileSync(manifestDir + '/84/Manifest.xml', outStr)
+//     fs.outputFileSync(manifestDir + '/Manifest.xml', outStr)
 //   } catch (e) {
 //     console.error(chalk.red('# write Manifest.xml error:'))
 //   }
@@ -259,7 +259,7 @@ function signTar (distPath, files, cb) {
     const fileDir = queue.shift()
     if (!fileDir) {
       if (working <= 0) {
-        fs.writeJSON(TEMP_DIR + '/84/CERT.json', CERT_JSON)
+        fs.writeJSON(TEMP_DIR + '/CERT.json', CERT_JSON)
         cb && cb()
       }
       return
@@ -296,7 +296,7 @@ function gulpPkg (options, subapp, cb) {
 
   const packageDir = PACKAGE_DIR + '/' + subapp.version
   const amrPath = path.join(ROOT_PATH, packageDir + '/' + amrFilename)
-  const srcPath = TEMP_DIR + '/84/**/*'
+  const srcPath = TEMP_DIR + '/**/*'
 
   gulp.task('zip', () => {
     return gulp
