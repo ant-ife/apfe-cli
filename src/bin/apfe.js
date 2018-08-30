@@ -7,11 +7,11 @@ import chalk from 'chalk'
 import _ from 'xutil'
 
 const packageCommands = {
-  init: 'generate a new project step-by-step, or by a template',
   update: 'update project\'s basic-settings, includes babel, eslint, webpack, etc.',
   pack: 'pack the web app for offline use',
   sim: 'debug web app in iOS simulator',
   bizapp: 'bizapp operations, includes create and compose',
+  create: 'create a new project',
 }
 
 if (Math.random() < 0.2) {
@@ -28,11 +28,11 @@ function exec () {
   program
     .version(require('../../package').version, '-v, --version')
     .usage('<command> [options]')
-    .command('init', packageCommands.init)
     .command('update', packageCommands.update)
     .command('pack', packageCommands.pack)
     .command('sim', packageCommands.sim)
     .command('bizapp', packageCommands.bizapp)
+    .command('create', _commands.create)
     .parse(process.argv)
 
   const subcmd = program.args[0]
