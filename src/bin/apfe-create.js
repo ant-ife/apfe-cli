@@ -82,16 +82,16 @@ process.on('exit', function () {
 })
 
 if (exists(to)) {
-  inquirer.prompt([{
-    type: 'confirm',
-    message: inPlace
-      ? 'Generate project in current directory?'
-      : 'Target directory exists. Continue?',
-    name: 'ok',
-  }], function (answers) {
-    if (answers.ok) {
-      run()
-    }
+  inquirer.prompt([
+    {
+      type: 'confirm',
+      message: inPlace
+        ? 'Generate project in current directory?'
+        : 'Target directory exists. Continue?',
+      name: 'ok',
+    },
+  ]).then(answers => {
+    answers.ok && run()
   })
 } else {
   run()

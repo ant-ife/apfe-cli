@@ -24,23 +24,24 @@ export async function normalizeTemplate (gitOrLocal) {
 }
 
 export function choose (opts) {
-  return new Promise((resolve) => {
-    inquirer.prompt(
-      [opts],
-      resolve
-    )
-  })
+  return inquirer.prompt([opts]).then(resolve => resolve())
+  // return new Promise((resolve) => {
+  //   inquirer.prompt(
+  //     [opts],
+  //     resolve
+  //   )
+  // })
 }
 
 export function confirm (message, cb) {
-  inquirer.prompt([{
-    type: 'confirm',
-    message: message,
-    name: 'confirm',
-  }], function (answers) {
-    if (answers.confirm) {
-      cb()
-    }
+  inquirer.prompt([
+    {
+      type: 'confirm',
+      message: message,
+      name: 'confirm',
+    },
+  ]).then(answers => {
+    answers.confirm && cb()
   })
 }
 

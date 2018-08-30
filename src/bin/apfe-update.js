@@ -57,14 +57,14 @@ function help () {
   if (args.length < 1) {
     return apfeUpdateDefaultHandle()
   } else {
-    inquirer.prompt([{
-      type: 'confirm',
-      message: `confirm to update ${args.join(', ')}`,
-      name: 'ok',
-    }], function (answers) {
-      if (answers.ok) {
-        run()
-      }
+    inquirer.prompt([
+      {
+        type: 'confirm',
+        message: `confirm to update ${args.join(', ')}`,
+        name: 'ok',
+      },
+    ]).then(answers => {
+      answers.ok && run()
     })
   }
 }
