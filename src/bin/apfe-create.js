@@ -13,7 +13,7 @@ import { isLocalPath } from '../lib/local-path'
 import { remoteGit } from '../lib/defaults'
 import { normalizeTemplate } from '../lib/util'
 
-const program = new Command('apfe init')
+const program = new Command('apfe create')
 
 /**
  * Help.
@@ -24,13 +24,13 @@ program.on('--help', function () {
   Examples:
 
     ${chalk.gray('# create a new project with an default template')}
-    $ apfe init path/to/my-project
+    $ apfe create path/to/my-project
 
     ${chalk.gray('# create a new project with an local path template')}
-    $ apfe init path/to/local-template path/to/my-project
+    $ apfe create path/to/local-template path/to/my-project
 
     ${chalk.gray('# create a new project straight from a git template')}
-    $ apfe init ${remoteGit} path/to/my-project
+    $ apfe create ${remoteGit} path/to/my-project
   `)
 })
 
@@ -82,16 +82,16 @@ process.on('exit', function () {
 })
 
 if (exists(to)) {
-  inquirer.prompt([{
-    type: 'confirm',
-    message: inPlace
-      ? 'Generate project in current directory?'
-      : 'Target directory exists. Continue?',
-    name: 'ok',
-  }], function (answers) {
-    if (answers.ok) {
-      run()
-    }
+  inquirer.prompt([
+    {
+      type: 'confirm',
+      message: inPlace
+        ? 'Generate project in current directory?'
+        : 'Target directory exists. Continue?',
+      name: 'ok',
+    },
+  ]).then(answers => {
+    answers.ok && run()
   })
 } else {
   run()

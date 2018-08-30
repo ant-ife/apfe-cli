@@ -11,17 +11,18 @@ import ask from './ask'
 import filter from './filter'
 import uuid from 'uuid/v4'
 import { readJsonSync } from 'fs-extra'
-import { existsFile } from './compose-apps/read-src'
+import { existsFile } from './exists'
 
 const render = handlebars.render
 const defaultMeta = (modules = [], dest) => {
   const result = {}
   modules.forEach(module => {
-    if (module === 'offline-package') {
-      result['offline'] = true
-    } else {
-      result[module] = true
-    }
+    // if (module === 'offline-package') {
+    //   result['offline'] = true
+    // } else {
+    //   result[module] = true
+    // }
+    result[module] = true
   })
   return Object.assign(result, {
     destDirName: modules.join('-'),
@@ -48,45 +49,6 @@ Handlebars.registerHelper('toUpperCase', function (str) {
 })
 
 Handlebars.registerHelper('uuid', uuid)
-
-export function generateBizApp (name, src, dest) {
-  return new Promise((resolve, reject) => {
-    const opts = getOptions(name, src)
-    const metalsmith = Metalsmith(path.join(src, 'template'))
-    const data = Object.assign(metalsmith.metadata(), { name })
-    opts.helpers && Object.keys(opts.helpers).map(function (key) {
-      Handlebars.registerHelper(key, opts.helpers[key])
-    })
-
-    const helpers = { chalk, logger }
-
-    metalsmith
-      .use(renderTemplateFiles(opts.skipInterpolation))
-
-    if (typeof opts.metalsmith === 'function') {
-      opts.metalsmith(metalsmith, opts, helpers)
-    } else if (opts.metalsmith && typeof opts.metalsmith.after === 'function') {
-      opts.metalsmith.after(metalsmith, opts, helpers)
-    }
-
-    metalsmith
-      .clean(false)
-      .source('.')
-      .destination(dest)
-      .build(function (err, files) {
-        if (err) reject(err)
-        if (typeof opts.complete === 'function') {
-          const helpers = { chalk, logger, files }
-          opts.complete(data, dest, helpers)
-        }
-
-        if (typeof opts.completeMessage === 'string') {
-          logMessage(opts.completeMessage, data)
-        }
-        resolve()
-      })
-  })
-}
 
 /**
  * Generate a template given a `src` and `dest`.
@@ -131,7 +93,7 @@ export function generate (name, src, dest, done) {
   metalsmith.clean(false)
     .source('.') // start from template root instead of `./src` which is Metalsmith's default for `source`
     .destination(dest)
-    .build(function (err, files) {
+    .build((err, files) => {
       done(err)
       if (typeof opts.complete === 'function') {
         const helpers = { chalk, logger, files }
@@ -210,7 +172,7 @@ function originMeta (dir) {
   const origin = {
     flow: false,
     test: false,
-    offline: false,
+    // offline: false,
   }
 
   if (existsFile(path.join(dir, 'flow-typed/modules.js')) &&
@@ -222,9 +184,9 @@ function originMeta (dir) {
     origin.test = true
   }
 
-  if (existsFile(path.join(dir, 'offline-package'))) {
-    origin.offline = true
-  }
+  // if (existsFile(path.join(dir, 'offline-package'))) {
+  //   origin.offline = true
+  // }
 
   return Object.assign({
     name: oriJson.name,

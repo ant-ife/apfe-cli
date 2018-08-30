@@ -9,21 +9,14 @@ import zip from 'gulp-zip'
 import map from 'map-stream'
 import sign from '../lib/sign'
 import home from 'user-home'
-import globby from 'globby'
-import {execSync} from 'child_process'
+// import globby from 'globby'
 import { Command } from 'commander'
-import {composeApps} from '../lib/compose-apps'
 
 const ROOT_PATH = process.cwd()
-const PACKAGE_DIR = './_package'
-const DIST_DIR = './_dist'
-const DIST_PATH = path.join(ROOT_PATH, DIST_DIR)
-const TEMP_PATH = path.join(ROOT_PATH, '_temp')
-
-const PROJECT_PATH = path.join(ROOT_PATH, '../../')
-// const PRE_PACK_PATH = path.join(ROOT_PATH, './prepack.js')
-const HOOK_PATH = path.join(ROOT_PATH, './hook.js')
-
+const PACKAGE_DIR = './_packages'
+const TEMP_DIR = './._temp'
+const TEMP_PATH = path.join(ROOT_PATH, TEMP_DIR)
+// const HOOK_PATH = path.join(ROOT_PATH, './.hook.js')
 
 const program = new Command('apfe pack')
 program
@@ -34,206 +27,185 @@ program
  * archiving
  * archiving the offline-package
  * 1. empty ./_dist
- * 2. parse packer.json include and ignore configuration
+ * 2. parse include and ignore configuration
  * 3. invoke gulp task
  *
  * @name archiving
  * @function
  * @access public
- * @param {Object} packer packer.json
+ * @param {Object} subapp package.json
  */
-function archiving (packer, cb) {
-  console.log(chalk.yellow('# start apfe pack...'))
+function archiving (subapp, cb) {
+  console.log(chalk.yellow('# packing offline-package with config below...'))
+  console.log(subapp) // output pkg.subapp config
+
   // empty dist path
-  if (fs.pathExistsSync(DIST_PATH)) {
-    fs.removeSync(DIST_PATH)
+  if (fs.pathExistsSync(TEMP_PATH)) {
+    fs.removeSync(TEMP_PATH)
   }
 
-  let distSrc = []
-  const files84 = []
+  let distSrc = ['./dist/**/*'] // Defaults include all filse in dist dir
+  const tarFiles = []
 
-  // parse packer include files
-  if (packer.build && packer.build.include) {
-    distSrc = distSrc.concat(packer.build.include)
+  // parse include files
+  if (Array.isArray(subapp.includes) && subapp.includes.length > 0) {
+    distSrc = subapp.includes
   }
 
   // ignore builder files
-  distSrc.push(
-    '!' + PACKAGE_DIR,
-    '!' + '!' + PACKAGE_DIR + '/**'
-  )
+  // distSrc.push(
+  //   '!' + PACKAGE_DIR,
+  //   '!' + '!' + PACKAGE_DIR + '/**'
+  // )
 
-  // ignore packer.ignore configuration
-  if (packer.build && packer.build.ignore) {
-    packer.build.ignore.forEach((v) => {
+  // ignore subapp.ignores configuration
+  if (Array.isArray(subapp.ignores)) {
+    subapp.ignores.forEach((v) => {
       distSrc.push('!' + v)
     })
   }
 
-  // define gulp entry task
+  // define gulp tasks
   gulp.task('tar', () => {
+    // console.log('Start gulp task: tar')
+
     return gulp
-      .src(DIST_DIR + '/84/_tar/**/*')
-      .pipe(tar(packer.name + '.tar'))
-      .pipe(gulp.dest(DIST_DIR + '/84'))
+      .src(TEMP_DIR + '/_tar/dist/**/*')
+      .pipe(tar(subapp.id + '.tar'))
+      .pipe(gulp.dest(TEMP_DIR))
   })
 
-  gulp.task('cert84', ['tar'], () => {
-    const _tarPath = DIST_PATH + '/84/_tar'
+  gulp.task('cert', ['tar'], () => {
+    // console.log('Start gulp task: cert')
+
+    const _tarPath = TEMP_PATH + '/_tar'
     if (fs.existsSync(_tarPath)) {
       fs.removeSync(_tarPath)
     }
 
-    const rtv = gulp.src(DIST_DIR + '/84/**/*')
+    const rtv = gulp.src(TEMP_DIR + '/**/*')
     function scanPipe (files) {
       function fn (file, cb) {
         !file.isDirectory() && files.push(file.relative)
       }
       return map(fn)
     }
-    rtv.pipe(scanPipe(files84))
+    rtv.pipe(scanPipe(tarFiles))
     rtv.on('end', () => {
-      signTar(DIST_PATH + '/84', files84, () => {
+      signTar(TEMP_PATH, tarFiles, () => {
         const _options = {
           tar: true,
         }
-        gulpPkg(_options, packer, cb)
+        gulpPkg(_options, subapp, cb)
       })
     })
     return rtv
   })
 
-  gulp.task('dist84', () => {
+  gulp.task('dist', () => {
+    // console.log('Start gulp task: dist')
+
     const src = gulp.src(distSrc).on('end', () => {
       // build Manifest.xml
-      buildManifestSync(packer, DIST_PATH, true)
+      // buildManifestSync(subapp, TEMP_PATH, true)
 
       setTimeout(() => {
-        gulp.start('cert84')
+        gulp.start('cert')
       }, 500)
     })
 
     src.pipe(
       gulp.dest((file) => {
-        let distDir = DIST_DIR + '/84/_tar'
+        let distDir = TEMP_DIR + '/_tar'
         if (file.base.indexOf(ROOT_PATH) > -1) {
-          distDir += file.base.replace(path.join(TEMP_PATH, 'dist'), '')
+          distDir += file.base.replace(ROOT_PATH, '')
         }
         return distDir
       }),
     )
-
-    fs.copySync('./packer.json', path.join(DIST_DIR + '/84/_tar/packer.json'))
   })
 
-  gulp.start('dist84')
+  gulp.start('dist')
 }
 
 /**
  * entry
- * 1. preCheck packer.json exist
+ * 1. preCheck package.json exist
  * 2. render build config
- * 3. invoke bizAppPack @see bizAppPack
+ * 3. invoke packSubapp @see packSubapp
  * @name entry
  * @function
  * @access public
  */
 function entry () {
-  if (!fs.pathExistsSync('packer.json')) {
-    console.log(chalk.red("Fail: Can't find packer.json !\r\n"))
+  if (!fs.pathExistsSync('package.json')) {
+    console.log(chalk.red('\r\nMissing package.json'))
     return
   }
-  try {
-    const config = fs.readJSONSync('packer.json')
-    const build = config.build;
 
-    // render inclue, ignore config
-    ['include', 'ignore'].forEach(k => {
-      build[k] = build[k].map(_ => path.join(TEMP_PATH, 'dist', _))
-    })
-    bizAppPack(config)
+  try {
+    const pkg = fs.readJSONSync('package.json')
+    const version = pkg.version
+    const config = Object.assign({ version }, pkg.subapp)
+
+    if (!('subapp' in pkg)) {
+      console.log(chalk.red('\r\nMissing `subapp` config in package.json'))
+      return
+    }
+
+    if (!config.id) {
+      console.log(chalk.red('\r\nMissing `subapp.id` config in package.json'))
+      return
+    }
+
+    packSubapp(config)
   } catch (e) {
     console.error(e)
-    console.log(chalk.red('failed to pack .'))
+    console.log(chalk.red('Pack offline-package failed.'))
   }
-}
-
-function removeTemp () {
-  console.log(chalk.yellow('# removing temp folder'))
-  fs.removeSync(path.join(ROOT_PATH, '_temp'))
 }
 
 /**
- * bizAppPack
+ * packSubapp
  *
- * 1. copy src
- * 2. link node_modules
- * 3. compose bizapps
- * 4. build assets
- * 5. load hook
- * 6. execute pack
- * @name bizAppPack
+ * 1. load hook
+ * 2. execute pack
+ * @name packSubapp
  * @function
  * @access public
  * @param {Object} config pack config
  */
-function bizAppPack (config) {
-  const bizApps = config['biz-apps'];
-
+function packSubapp (config) {
   (async () => {
     try {
-      const paths = await globby(['*', '!{node_modules,offline-package,dist,offline_package}'], {
-        cwd: '../../',
-      })
+      // // 1. loading hook
+      // if (!fs.pathExistsSync(HOOK_PATH)) {
+      //   fs.copySync(path.join(__dirname, '../vendor/hook.js'), HOOK_PATH)
+      // }
 
-      console.log(chalk.yellow('# staring copy file src to _temp'))
-      paths.forEach(f => {
-        fs.copySync(path.join(PROJECT_PATH, f), path.join(TEMP_PATH, f))
-      })
+      // const hook = require(HOOK_PATH)
+      // const afterPack = hook.afterPack
+      // const beforePack = hook.beforePack
 
-      // 2. link node_modules
-      console.log(chalk.yellow('# staring link node_modules'))
-      fs.ensureSymlinkSync(path.join(PROJECT_PATH, 'node_modules'), path.join(TEMP_PATH, 'node_modules'))
+      // console.log(chalk.yellow('# starting beforePack'))
+      // beforePack && beforePack({
+      //   fse: fs,
+      //   globby,
+      // })
 
-      // 3. compose bizapps
-      console.log(chalk.yellow('# staring compose biz apps', bizApps))
-      await composeApps(path.join(TEMP_PATH, './src'), {}, ...bizApps)
-
-      // 4. build assets
-      console.log(chalk.yellow('# staring building assets'))
-      execSync('npm run build', {
-        cwd: TEMP_PATH,
-      })
-
-      // 5. loading hook
-      let beforePack, afterPack
-      if (fs.pathExistsSync(HOOK_PATH)) {
-        const hook = require(HOOK_PATH)
-        afterPack = hook.afterPack
-        beforePack = hook.beforePack
-      }
-
-      console.log(chalk.yellow('# starting beforePack'))
-      beforePack && beforePack({
-        fse: fs,
-        globby,
-      })
-
-      // 6. execute pack
+      // 2. execute pack
       await new Promise(res => {
         archiving(config, res)
       })
 
-      console.log(chalk.yellow('# starting afterPack'))
-      afterPack && afterPack({
-        fse: fs,
-        globby,
-      })
-    } catch (e) {
-      console.error(chalk.red('# error', e))
+      // console.log(chalk.yellow('# starting afterPack'))
+      // afterPack && afterPack({
+      //   fse: fs,
+      //   globby,
+      // })
+    } catch (ex) {
+      console.error(ex)
     }
-
-    removeTemp()
   })()
 }
 
@@ -244,23 +216,23 @@ function bizAppPack (config) {
  * @name buildManifestSync
  * @function
  * @access public
- * @param {Object} packer packer.json config
+ * @param {Object} subapp package.json config
  * @param {String} manifestDir output path
  */
-function buildManifestSync (packer, manifestDir) {
-  try {
-    const out = []
-    out.push('<?xml version="1.0" encoding="utf-8"?>')
-    out.push('<package>')
-    out.push('  <name>' + packer.name + '</name>')
-    out.push('  <version>' + packer.version + '</version>')
-    out.push('</package>')
-    const outStr = out.join('\n')
-    fs.outputFileSync(manifestDir + '/84/Manifest.xml', outStr)
-  } catch (e) {
-    console.error(chalk.red('# write Manifest.xml error:'))
-  }
-}
+// function buildManifestSync (subapp, manifestDir) {
+//   try {
+//     const out = []
+//     out.push('<?xml version="1.0" encoding="utf-8"?>')
+//     out.push('<package>')
+//     out.push('  <name>' + subapp.id + '</name>')
+//     out.push('  <version>' + subapp.version + '</version>')
+//     out.push('</package>')
+//     const outStr = out.join('\n')
+//     fs.outputFileSync(manifestDir + '/Manifest.xml', outStr)
+//   } catch (e) {
+//     console.error(chalk.red('# write Manifest.xml error:'))
+//   }
+// }
 
 /**
  * signTar
@@ -287,7 +259,7 @@ function signTar (distPath, files, cb) {
     const fileDir = queue.shift()
     if (!fileDir) {
       if (working <= 0) {
-        fs.writeJSON(DIST_DIR + '/84/CERT.json', CERT_JSON)
+        fs.writeJSON(TEMP_DIR + '/CERT.json', CERT_JSON)
         cb && cb()
       }
       return
@@ -316,15 +288,15 @@ function signTar (distPath, files, cb) {
  * @function
  * @access public
  * @param {Object} options options
- * @param {Object} packer packer.json
+ * @param {Object} subapp package.json
  * @param {Function} cb callback
  */
-function gulpPkg (options, packer, cb) {
-  const amrFilename = `${packer.appid}_${packer.version}.amr`
+function gulpPkg (options, subapp, cb) {
+  const amrFilename = `${subapp.id}_${subapp.version}.amr`
 
-  const packageDir = PACKAGE_DIR + '/' + packer.version
+  const packageDir = PACKAGE_DIR + '/' + subapp.version
   const amrPath = path.join(ROOT_PATH, packageDir + '/' + amrFilename)
-  const srcPath = DIST_DIR + '/84/**/*'
+  const srcPath = TEMP_DIR + '/**/*'
 
   gulp.task('zip', () => {
     return gulp
@@ -333,10 +305,10 @@ function gulpPkg (options, packer, cb) {
       .pipe(gulp.dest(packageDir))
   })
   gulp.task('pack', ['zip'], () => {
-    console.log('# packed at ' + chalk.green(amrPath))
+    console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')))
     const pkgInfo = {
       file: packageDir + '/' + amrFilename,
-      packer: packer,
+      config: subapp,
     }
     cb && cb(options.all, pkgInfo)
   })

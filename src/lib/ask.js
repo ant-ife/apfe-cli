@@ -44,14 +44,16 @@ function prompt (data, key, prompt, done) {
     }
   }
 
-  inquirer.prompt([{
-    type: promptMapping[prompt.type] || prompt.type,
-    name: key,
-    message: prompt.message || prompt.label || key,
-    default: promptDefault,
-    choices: prompt.choices || [],
-    validate: prompt.validate || function () { return true },
-  }], function (answers) {
+  inquirer.prompt([
+    {
+      type: promptMapping[prompt.type] || prompt.type,
+      name: key,
+      message: prompt.message || prompt.label || key,
+      default: promptDefault,
+      choices: prompt.choices || [],
+      validate: prompt.validate || function () { return true },
+    },
+  ]).then(answers => {
     if (Array.isArray(answers[key])) {
       data[key] = {}
       answers[key].forEach(function (multiChoiceAnswer) {

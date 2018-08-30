@@ -34,11 +34,11 @@ $ apfe -h
 
 ## Contributors
 
-|[<img src="https://avatars2.githubusercontent.com/u/1814071?v=4" width="100px;"/><br/><sub><b>xiekw2010</b></sub>](https://github.com/xiekw2010)<br/>|[<img src="https://avatars1.githubusercontent.com/u/1011681?v=4" width="100px;"/><br/><sub><b>xudafeng</b></sub>](https://github.com/xudafeng)<br/>|[<img src="https://avatars3.githubusercontent.com/u/5574625?v=4" width="100px;"/><br/><sub><b>elrrrrrrr</b></sub>](https://github.com/elrrrrrrr)<br/>
-| :---: | :---: | :---: |
+|[<img src="https://avatars1.githubusercontent.com/u/1011681?v=4" width="100px;"/><br/><sub><b>xudafeng</b></sub>](https://github.com/xudafeng)<br/>|[<img src="https://avatars2.githubusercontent.com/u/1814071?v=4" width="100px;"/><br/><sub><b>xiekw2010</b></sub>](https://github.com/xiekw2010)<br/>|[<img src="https://avatars3.githubusercontent.com/u/5574625?v=4" width="100px;"/><br/><sub><b>elrrrrrrr</b></sub>](https://github.com/elrrrrrrr)<br/>|[<img src="https://avatars2.githubusercontent.com/u/197375?v=4" width="100px;"/><br/><sub><b>jsw0528</b></sub>](https://github.com/jsw0528)<br/>
+| :---: | :---: | :---: | :---: |
 
 
-This project follows the git-contributor [spec](https://github.com/xudafeng/git-contributor), auto upated at `Thu Apr 26 2018 15:27:57 GMT+0800`.
+This project follows the git-contributor [spec](https://github.com/xudafeng/git-contributor), auto upated at `Thu Aug 30 2018 20:28:11 GMT+0800`.
 
 <!-- GITCONTRIBUTOR_END -->
 

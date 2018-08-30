@@ -1,1 +1,0 @@
-export const CASHIER_INDEX = 'CASHIER_INDEX'
