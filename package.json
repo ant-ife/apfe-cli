@@ -35,7 +35,7 @@
     "test": "npm run build && npm run mocha",
     "pub": "npm run build && npm publish",
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
-    "ci": "npm run lint && npm run test"
+    "ci": "npm run lint"
   },
   "husky": {
     "hooks": {
