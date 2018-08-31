@@ -300,6 +300,7 @@ function gulpPkg (options, subapp, cb) {
     })
     gulp.start('pack')
   }
+
   lcl.getLastCommit()
     .then(lastCommit => handlePack(lastCommit.shortHash))
     .catch(() => handlePack())
