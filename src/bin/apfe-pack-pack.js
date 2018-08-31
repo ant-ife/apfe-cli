@@ -52,12 +52,6 @@ function archiving (subapp, cb) {
     distSrc = subapp.includes
   }
 
-  // ignore builder files
-  // distSrc.push(
-  //   '!' + PACKAGE_DIR,
-  //   '!' + '!' + PACKAGE_DIR + '/**'
-  // )
-
   // ignore subapp.ignores configuration
   if (Array.isArray(subapp.ignores)) {
     subapp.ignores.forEach((v) => {
@@ -178,31 +172,10 @@ function entry () {
 function packSubapp (config) {
   (async () => {
     try {
-      // // 1. loading hook
-      // if (!fs.pathExistsSync(HOOK_PATH)) {
-      //   fs.copySync(path.join(__dirname, '../vendor/hook.js'), HOOK_PATH)
-      // }
-
-      // const hook = require(HOOK_PATH)
-      // const afterPack = hook.afterPack
-      // const beforePack = hook.beforePack
-
-      // console.log(chalk.yellow('# starting beforePack'))
-      // beforePack && beforePack({
-      //   fse: fs,
-      //   globby,
-      // })
-
-      // 2. execute pack
+      // execute pack
       await new Promise(res => {
         archiving(config, res)
       })
-
-      // console.log(chalk.yellow('# starting afterPack'))
-      // afterPack && afterPack({
-      //   fse: fs,
-      //   globby,
-      // })
     } catch (ex) {
       console.error(ex)
     }
