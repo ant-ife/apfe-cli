@@ -292,10 +292,20 @@ function signTar (distPath, files, cb) {
  * @param {Function} cb callback
  */
 function gulpPkg (options, subapp, cb) {
-  const amrFilename = `${subapp.id}_${subapp.version}.amr`
+  let amrFilename = `${subapp.id}_${subapp.version}`
+
+  // Custom offline-package filename
+  if (subapp.filename) {
+    amrFilename = subapp.filename
+      .replace('[id]', subapp.id)
+      .replace('[version]', subapp.version)
+      .replace('[random]', Math.random().toString(36).substr(2, 6))
+  }
+
+  amrFilename += '.amr'
 
   const packageDir = PACKAGE_DIR + '/' + subapp.version
-  const amrPath = path.join(ROOT_PATH, packageDir + '/' + amrFilename)
+  const amrPath = path.join(ROOT_PATH, packageDir, amrFilename)
   const srcPath = TEMP_DIR + '/**/*'
 
   gulp.task('zip', () => {
