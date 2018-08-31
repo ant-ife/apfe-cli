@@ -304,20 +304,19 @@ function gulpPkg (options, subapp, cb) {
 
   amrFilename += '.amr'
 
-  const packageDir = PACKAGE_DIR + '/' + subapp.version
-  const amrPath = path.join(ROOT_PATH, packageDir, amrFilename)
+  const amrPath = path.join(ROOT_PATH, PACKAGE_DIR, amrFilename)
   const srcPath = TEMP_DIR + '/**/*'
 
   gulp.task('zip', () => {
     return gulp
       .src(srcPath)
       .pipe(zip(amrFilename))
-      .pipe(gulp.dest(packageDir))
+      .pipe(gulp.dest(PACKAGE_DIR))
   })
   gulp.task('pack', ['zip'], () => {
     console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')))
     const pkgInfo = {
-      file: packageDir + '/' + amrFilename,
+      file: PACKAGE_DIR + '/' + amrFilename,
       config: subapp,
     }
     cb && cb(options.all, pkgInfo)
