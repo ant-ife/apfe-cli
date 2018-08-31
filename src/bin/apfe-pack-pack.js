@@ -297,9 +297,9 @@ function gulpPkg (options, subapp, cb) {
   // Custom offline-package filename
   if (subapp.filename) {
     amrFilename = subapp.filename
-      .replace('{id}', subapp.id)
-      .replace('{version}', subapp.version)
-      .replace('{random}', Math.random().toString(36).substr(2, 6))
+      .replace('[id]', subapp.id)
+      .replace('[version]', subapp.version)
+      .replace('[random]', Math.random().toString(36).substr(2, 6))
   }
 
   amrFilename += '.amr'
