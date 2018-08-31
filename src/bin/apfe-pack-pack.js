@@ -11,6 +11,9 @@ import sign from '../lib/sign'
 import home from 'user-home'
 // import globby from 'globby'
 import { Command } from 'commander'
+import LCL from 'last-commit-log'
+
+const lcl = new LCL()
 
 const ROOT_PATH = process.cwd()
 const PACKAGE_DIR = './_packages'
@@ -265,36 +268,41 @@ function signTar (distPath, files, cb) {
  * @param {Function} cb callback
  */
 function gulpPkg (options, subapp, cb) {
-  let amrFilename = `${subapp.id}_${subapp.version}`
+  const handlePack = shortHash => {
+    let amrFilename = `${subapp.id}_${subapp.version}`
 
-  // Custom offline-package filename
-  if (subapp.filename) {
-    amrFilename = subapp.filename
-      .replace('[id]', subapp.id)
-      .replace('[version]', subapp.version)
-      .replace('[random]', Math.random().toString(36).substr(2, 6))
-  }
-
-  amrFilename += '.amr'
-
-  const amrPath = path.join(ROOT_PATH, PACKAGE_DIR, amrFilename)
-  const srcPath = TEMP_DIR + '/**/*'
-
-  gulp.task('zip', () => {
-    return gulp
-      .src(srcPath)
-      .pipe(zip(amrFilename))
-      .pipe(gulp.dest(PACKAGE_DIR))
-  })
-  gulp.task('pack', ['zip'], () => {
-    console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')))
-    const pkgInfo = {
-      file: PACKAGE_DIR + '/' + amrFilename,
-      config: subapp,
+    // Custom offline-package filename
+    if (subapp.filename) {
+      amrFilename = subapp.filename
+        .replace('[id]', subapp.id)
+        .replace('[version]', subapp.version)
+        .replace('[random]', shortHash || Math.random().toString(36).substr(2, 7))
     }
-    cb && cb(options.all, pkgInfo)
-  })
-  gulp.start('pack')
+
+    amrFilename += '.amr'
+
+    const amrPath = path.join(ROOT_PATH, PACKAGE_DIR, amrFilename)
+    const srcPath = TEMP_DIR + '/**/*'
+
+    gulp.task('zip', () => {
+      return gulp
+        .src(srcPath)
+        .pipe(zip(amrFilename))
+        .pipe(gulp.dest(PACKAGE_DIR))
+    })
+    gulp.task('pack', ['zip'], () => {
+      console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')))
+      const pkgInfo = {
+        file: PACKAGE_DIR + '/' + amrFilename,
+        config: subapp,
+      }
+      cb && cb(options.all, pkgInfo)
+    })
+    gulp.start('pack')
+  }
+  lcl.getLastCommit()
+    .then(lastCommit => handlePack(lastCommit.shortHash))
+    .catch(() => handlePack())
 }
 
 function preCheck () {
