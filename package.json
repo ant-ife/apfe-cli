@@ -1,6 +1,6 @@
 {
   "name": "apfe-cli",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Alipay+ Subapp ToolKit",
   "keywords": [
     "ToolKit",
@@ -28,6 +28,7 @@
     "pub": "npm run build && npm publish",
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
     "ci": "npm run lint",
+    "prepublishOnly": "npm run babel",
     "contributor": "git-contributor"
   },
   "husky": {
