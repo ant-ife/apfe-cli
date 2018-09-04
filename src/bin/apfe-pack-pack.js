@@ -104,7 +104,7 @@ function archiving (subapp, cb) {
 
     const src = gulp.src(distSrc).on('end', () => {
       // build Manifest.xml
-      // buildManifestSync(subapp, TEMP_PATH, true)
+      buildManifestSync(subapp, TEMP_PATH, true)
 
       setTimeout(() => {
         gulp.start('cert')
@@ -195,20 +195,21 @@ function packSubapp (config) {
  * @param {Object} subapp package.json config
  * @param {String} manifestDir output path
  */
-// function buildManifestSync (subapp, manifestDir) {
-//   try {
-//     const out = []
-//     out.push('<?xml version="1.0" encoding="utf-8"?>')
-//     out.push('<package>')
-//     out.push('  <name>' + subapp.id + '</name>')
-//     out.push('  <version>' + subapp.version + '</version>')
-//     out.push('</package>')
-//     const outStr = out.join('\n')
-//     fs.outputFileSync(manifestDir + '/Manifest.xml', outStr)
-//   } catch (e) {
-//     console.error(chalk.red('# write Manifest.xml error:'))
-//   }
-// }
+function buildManifestSync (subapp, manifestDir) {
+  try {
+    const out = []
+    out.push('<?xml version="1.0" encoding="utf-8"?>')
+    out.push('<package>')
+    out.push('  <uid>' + subapp.id + '</uid>')
+    out.push('  <name>' + subapp.id + '</name>')
+    out.push('  <version>' + subapp.version + '</version>')
+    out.push('</package>')
+    const outStr = out.join('\n')
+    fs.outputFileSync(manifestDir + '/Manifest.xml', outStr)
+  } catch (e) {
+    console.error(chalk.red('# write Manifest.xml error:'))
+  }
+}
 
 /**
  * signTar
