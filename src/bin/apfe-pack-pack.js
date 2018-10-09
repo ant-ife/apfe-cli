@@ -67,7 +67,7 @@ function archiving (subapp, cb) {
     // console.log('Start gulp task: tar')
 
     return gulp
-      .src(TEMP_DIR + '/_tar/dist/**/*')
+      .src(distSrc.map(_ => `${TEMP_DIR}/_tar/${_}`))
       .pipe(tar(subapp.id + '.tar'))
       .pipe(gulp.dest(TEMP_DIR))
   })
