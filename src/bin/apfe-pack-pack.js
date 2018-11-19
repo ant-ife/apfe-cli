@@ -24,6 +24,7 @@ const TEMP_PATH = path.join(ROOT_PATH, TEMP_DIR)
 const program = new Command('apfe pack')
 program
   .usage(' ')
+  .option('-c, --config [file]', 'apfe config')
   .parse(process.argv)
 
 /**
@@ -127,7 +128,7 @@ function archiving (subapp, cb) {
 
 /**
  * entry
- * 1. preCheck package.json exist
+ * 1. preCheck config file (package.json as default) exist
  * 2. render build config
  * 3. invoke packSubapp @see packSubapp
  * @name entry
@@ -135,23 +136,25 @@ function archiving (subapp, cb) {
  * @access public
  */
 function entry () {
-  if (!fs.pathExistsSync('package.json')) {
-    console.log(chalk.red('\r\nMissing package.json'))
+  const configPath = program.config || 'package.json'
+
+  if (!fs.pathExistsSync(configPath)) {
+    console.log(chalk.red(`\r\nMissing ${configPath}`))
     return
   }
 
   try {
-    const pkg = fs.readJSONSync('package.json')
+    const pkg = fs.readJSONSync(configPath)
     const version = pkg.version
     const config = Object.assign({ version }, pkg.subapp)
 
     if (!('subapp' in pkg)) {
-      console.log(chalk.red('\r\nMissing `subapp` config in package.json'))
+      console.log(chalk.red(`\r\nMissing \`subapp\` config in ${configPath}`))
       return
     }
 
     if (!config.id) {
-      console.log(chalk.red('\r\nMissing `subapp.id` config in package.json'))
+      console.log(chalk.red(`\r\nMissing \`subapp.id\` config in ${configPath}`))
       return
     }
 
