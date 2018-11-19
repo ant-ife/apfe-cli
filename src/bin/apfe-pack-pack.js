@@ -9,7 +9,6 @@ import zip from 'gulp-zip'
 import map from 'map-stream'
 import sign from '../lib/sign'
 import home from 'user-home'
-// import globby from 'globby'
 import { Command } from 'commander'
 import LCL from 'last-commit-log'
 
@@ -19,12 +18,11 @@ const ROOT_PATH = process.cwd()
 const PACKAGE_DIR = './_packages'
 const TEMP_DIR = './._temp'
 const TEMP_PATH = path.join(ROOT_PATH, TEMP_DIR)
-// const HOOK_PATH = path.join(ROOT_PATH, './.hook.js')
 
 const program = new Command('apfe pack')
 program
   .usage(' ')
-  .option('-c, --config [file]', 'apfe config')
+  .option('-c, --config [file]', 'offline-package config')
   .parse(process.argv)
 
 /**
@@ -48,79 +46,75 @@ function archiving (subapp, cb) {
     fs.removeSync(TEMP_PATH)
   }
 
-  let distSrc = ['./dist/**/*'] // Defaults include all filse in dist dir
-  const tarFiles = []
+  let sourceSrc = ['./dist/**/*'] // Defaults include all filse in dist dir
 
   // parse include files
   if (Array.isArray(subapp.includes) && subapp.includes.length > 0) {
-    distSrc = subapp.includes
+    sourceSrc = subapp.includes
   }
 
   // ignore subapp.ignores configuration
   if (Array.isArray(subapp.ignores)) {
     subapp.ignores.forEach((v) => {
-      distSrc.push('!' + v)
+      sourceSrc.push('!' + v)
     })
   }
 
   // define gulp tasks
   gulp.task('tar', () => {
-    // console.log('Start gulp task: tar')
-
+    const _tarPath = `${TEMP_DIR}/_tar`
     return gulp
-      .src(distSrc.map(_ => `${TEMP_DIR}/_tar/${_}`))
+      .src(sourceSrc.map(_ => `${_tarPath}/${_}`))
+      .on('end', () => {
+        if (fs.existsSync(_tarPath)) fs.removeSync(_tarPath)
+      })
       .pipe(tar(subapp.id + '.tar'))
       .pipe(gulp.dest(TEMP_DIR))
   })
 
   gulp.task('cert', ['tar'], () => {
-    // console.log('Start gulp task: cert')
-
-    const _tarPath = TEMP_PATH + '/_tar'
-    if (fs.existsSync(_tarPath)) {
-      fs.removeSync(_tarPath)
-    }
-
-    const rtv = gulp.src(TEMP_DIR + '/**/*')
-    function scanPipe (files) {
-      function fn (file, cb) {
+    const tarFiles = []
+    const scanPipe = (files) => {
+      return map((file) => {
         !file.isDirectory() && files.push(file.relative)
-      }
-      return map(fn)
-    }
-    rtv.pipe(scanPipe(tarFiles))
-    rtv.on('end', () => {
-      signTar(TEMP_PATH, tarFiles, () => {
-        const _options = {
-          tar: true,
-        }
-        gulpPkg(_options, subapp, cb)
       })
-    })
-    return rtv
+    }
+
+    return gulp
+      .src(TEMP_DIR + '/**/*')
+      .on('end', () => {
+        signTar(TEMP_PATH, tarFiles, () => gulpPkg({ tar: true }, subapp, cb))
+      })
+      .pipe(scanPipe(tarFiles))
   })
 
   gulp.task('dist', () => {
-    // console.log('Start gulp task: dist')
+    let tarRootPath = ''
+    if (subapp.rootPath) {
+      tarRootPath = subapp.rootPath.replace('[id]', subapp.id) + '/'
+      if (tarRootPath.indexOf('.') !== -1) {
+        tarRootPath = tarRootPath.replace(/\./g, '_')
+      }
+    }
 
-    const src = gulp.src(distSrc).on('end', () => {
-      // build Manifest.xml
-      buildManifestSync(subapp, TEMP_PATH, true)
+    gulp
+      .src(sourceSrc)
+      .on('end', () => {
+        // build Manifest.xml
+        createManifestFile(subapp, TEMP_PATH, true)
 
-      setTimeout(() => {
-        gulp.start('cert')
-      }, 500)
-    })
-
-    src.pipe(
-      gulp.dest((file) => {
-        let distDir = TEMP_DIR + '/_tar'
-        if (file.base.indexOf(ROOT_PATH) > -1) {
-          distDir += file.base.replace(ROOT_PATH, '')
-        }
-        return distDir
-      }),
-    )
+        setTimeout(() => gulp.start('cert'), 500)
+      })
+      .pipe(
+        gulp.dest((file) => {
+          let destDir = TEMP_DIR + '/_tar'
+          if (file.base.indexOf(ROOT_PATH) > -1) {
+            destDir += file.base.replace(ROOT_PATH, '')
+          }
+          destDir += tarRootPath
+          return destDir
+        })
+      )
   })
 
   gulp.start('dist')
@@ -189,16 +183,16 @@ function packSubapp (config) {
 }
 
 /**
- * buildManifestSync
+ * createManifestFile
  * generate Manifest.xml
  *
- * @name buildManifestSync
+ * @name createManifestFile
  * @function
  * @access public
  * @param {Object} subapp package.json config
  * @param {String} manifestDir output path
  */
-function buildManifestSync (subapp, manifestDir) {
+function createManifestFile (subapp, manifestDir) {
   try {
     const out = []
     out.push('<?xml version="1.0" encoding="utf-8"?>')
