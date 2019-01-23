@@ -1,29 +1,29 @@
 #!/usr/bin/env node
 
-import chalk from 'chalk'
-import fs from 'fs-extra'
-import path from 'path'
-import gulp from 'gulp'
-import tar from 'gulp-tar'
-import zip from 'gulp-zip'
-import map from 'map-stream'
-import sign from '../lib/sign'
-import home from 'user-home'
-import { Command } from 'commander'
-import LCL from 'last-commit-log'
+const chalk = require('chalk');
+const fs = require('fs-extra');
+const path = require('path');
+const gulp = require('gulp');
+const tar = require('gulp-tar');
+const zip = require('gulp-zip');
+const map = require('map-stream');
+const sign = require('../lib/sign');
+const home = require('user-home');
+const { Command } = require('commander');
+const LCL = require('last-commit-log');
 
-const lcl = new LCL()
+const lcl = new LCL();
 
-const ROOT_PATH = process.cwd()
-const PACKAGE_DIR = './_packages'
-const TEMP_DIR = './._temp'
-const TEMP_PATH = path.join(ROOT_PATH, TEMP_DIR)
+const ROOT_PATH = process.cwd();
+const PACKAGE_DIR = './_packages';
+const TEMP_DIR = './._temp';
+const TEMP_PATH = path.join(ROOT_PATH, TEMP_DIR);
 
-const program = new Command('apfe pack')
+const program = new Command('apfe pack');
 program
   .usage(' ')
   .option('-c, --config [file]', 'offline-package config')
-  .parse(process.argv)
+  .parse(process.argv);
 
 /**
  * archiving
@@ -38,62 +38,62 @@ program
  * @param {Object} subapp package.json
  */
 function archiving (subapp, cb) {
-  console.log(chalk.yellow('# packing offline-package with config below...'))
-  console.log(subapp) // output pkg.subapp config
+  console.log(chalk.yellow('# packing offline-package with config below...'));
+  console.log(subapp); // output pkg.subapp config
 
   // empty dist path
   if (fs.pathExistsSync(TEMP_PATH)) {
-    fs.removeSync(TEMP_PATH)
+    fs.removeSync(TEMP_PATH);
   }
 
-  let sourceSrc = ['./dist/**/*'] // Defaults include all filse in dist dir
+  let sourceSrc = ['./dist/**/*']; // Defaults include all filse in dist dir
 
   // parse include files
   if (Array.isArray(subapp.includes) && subapp.includes.length > 0) {
-    sourceSrc = subapp.includes
+    sourceSrc = subapp.includes;
   }
 
   // ignore subapp.ignores configuration
   if (Array.isArray(subapp.ignores)) {
     subapp.ignores.forEach((v) => {
-      sourceSrc.push('!' + v)
-    })
+      sourceSrc.push('!' + v);
+    });
   }
 
   // define gulp tasks
   gulp.task('tar', () => {
-    const _tarPath = `${TEMP_DIR}/_tar`
+    const _tarPath = `${TEMP_DIR}/_tar`;
     return gulp
       .src(sourceSrc.map(_ => `${_tarPath}/${_}`))
       .on('end', () => {
-        if (fs.existsSync(_tarPath)) fs.removeSync(_tarPath)
+        if (fs.existsSync(_tarPath)) fs.removeSync(_tarPath);
       })
       .pipe(tar(subapp.id + '.tar'))
-      .pipe(gulp.dest(TEMP_DIR))
-  })
+      .pipe(gulp.dest(TEMP_DIR));
+  });
 
   gulp.task('cert', ['tar'], () => {
-    const tarFiles = []
+    const tarFiles = [];
     const scanPipe = (files) => {
       return map((file) => {
-        !file.isDirectory() && files.push(file.relative)
-      })
-    }
+        !file.isDirectory() && files.push(file.relative);
+      });
+    };
 
     return gulp
       .src(TEMP_DIR + '/**/*')
       .on('end', () => {
-        signTar(TEMP_PATH, tarFiles, () => gulpPkg({ tar: true }, subapp, cb))
+        signTar(TEMP_PATH, tarFiles, () => gulpPkg({ tar: true }, subapp, cb));
       })
-      .pipe(scanPipe(tarFiles))
-  })
+      .pipe(scanPipe(tarFiles));
+  });
 
   gulp.task('dist', () => {
-    let tarRootPath = ''
+    let tarRootPath = '';
     if (subapp.rootPath) {
-      tarRootPath = subapp.rootPath.replace('[id]', subapp.id) + '/'
+      tarRootPath = subapp.rootPath.replace('[id]', subapp.id) + '/';
       if (tarRootPath.indexOf('.') !== -1) {
-        tarRootPath = tarRootPath.replace(/\./g, '_')
+        tarRootPath = tarRootPath.replace(/\./g, '_');
       }
     }
 
@@ -101,23 +101,23 @@ function archiving (subapp, cb) {
       .src(sourceSrc)
       .on('end', () => {
         // build Manifest.xml
-        createManifestFile(subapp, TEMP_PATH, true)
+        createManifestFile(subapp, TEMP_PATH, true);
 
-        setTimeout(() => gulp.start('cert'), 500)
+        setTimeout(() => gulp.start('cert'), 500);
       })
       .pipe(
         gulp.dest((file) => {
-          let destDir = TEMP_DIR + '/_tar'
+          let destDir = TEMP_DIR + '/_tar';
           if (file.base.indexOf(ROOT_PATH) > -1) {
-            destDir += file.base.replace(ROOT_PATH, '')
+            destDir += file.base.replace(ROOT_PATH, '');
           }
-          destDir += tarRootPath
-          return destDir
+          destDir += tarRootPath;
+          return destDir;
         })
-      )
-  })
+      );
+  });
 
-  gulp.start('dist')
+  gulp.start('dist');
 }
 
 /**
@@ -130,32 +130,32 @@ function archiving (subapp, cb) {
  * @access public
  */
 function entry () {
-  const configPath = program.config || 'package.json'
+  const configPath = program.config || 'package.json';
 
   if (!fs.pathExistsSync(configPath)) {
-    console.log(chalk.red(`\r\nMissing ${configPath}`))
-    return
+    console.log(chalk.red(`\r\nMissing ${configPath}`));
+    return;
   }
 
   try {
-    const pkg = fs.readJSONSync(configPath)
-    const version = pkg.version
-    const config = Object.assign({ version }, pkg.subapp)
+    const pkg = fs.readJSONSync(configPath);
+    const version = pkg.version;
+    const config = Object.assign({ version }, pkg.subapp);
 
     if (!('subapp' in pkg)) {
-      console.log(chalk.red(`\r\nMissing \`subapp\` config in ${configPath}`))
-      return
+      console.log(chalk.red(`\r\nMissing \`subapp\` config in ${configPath}`));
+      return;
     }
 
     if (!config.id) {
-      console.log(chalk.red(`\r\nMissing \`subapp.id\` config in ${configPath}`))
-      return
+      console.log(chalk.red(`\r\nMissing \`subapp.id\` config in ${configPath}`));
+      return;
     }
 
-    packSubapp(config)
+    packSubapp(config);
   } catch (e) {
-    console.error(e)
-    console.log(chalk.red('Pack offline-package failed.'))
+    console.error(e);
+    console.log(chalk.red('Pack offline-package failed.'));
   }
 }
 
@@ -174,12 +174,12 @@ function packSubapp (config) {
     try {
       // execute pack
       await new Promise(res => {
-        archiving(config, res)
-      })
+        archiving(config, res);
+      });
     } catch (ex) {
-      console.error(ex)
+      console.error(ex);
     }
-  })()
+  })();
 }
 
 /**
@@ -194,17 +194,17 @@ function packSubapp (config) {
  */
 function createManifestFile (subapp, manifestDir) {
   try {
-    const out = []
-    out.push('<?xml version="1.0" encoding="utf-8"?>')
-    out.push('<package>')
-    out.push('  <uid>' + subapp.id + '</uid>')
-    out.push('  <name>' + subapp.id + '</name>')
-    out.push('  <version>' + subapp.version + '</version>')
-    out.push('</package>')
-    const outStr = out.join('\n')
-    fs.outputFileSync(manifestDir + '/Manifest.xml', outStr)
+    const out = [];
+    out.push('<?xml version="1.0" encoding="utf-8"?>');
+    out.push('<package>');
+    out.push('  <uid>' + subapp.id + '</uid>');
+    out.push('  <name>' + subapp.id + '</name>');
+    out.push('  <version>' + subapp.version + '</version>');
+    out.push('</package>');
+    const outStr = out.join('\n');
+    fs.outputFileSync(manifestDir + '/Manifest.xml', outStr);
   } catch (e) {
-    console.error(chalk.red('# write Manifest.xml error:'))
+    console.error(chalk.red('# write Manifest.xml error:'));
   }
 }
 
@@ -223,31 +223,31 @@ function createManifestFile (subapp, manifestDir) {
  * @param {Function} cb callback
  */
 function signTar (distPath, files, cb) {
-  const CERT_JSON = {}
-  const queue = files.slice(0)
-  let working = 0
-  const threads = 2
-  next()
+  const CERT_JSON = {};
+  const queue = files.slice(0);
+  let working = 0;
+  const threads = 2;
+  next();
 
   function next () {
-    const fileDir = queue.shift()
+    const fileDir = queue.shift();
     if (!fileDir) {
       if (working <= 0) {
-        fs.writeJSON(TEMP_DIR + '/CERT.json', CERT_JSON)
-        cb && cb()
+        fs.writeJSON(TEMP_DIR + '/CERT.json', CERT_JSON);
+        cb && cb();
       }
-      return
+      return;
     }
-    const filePath = path.join(distPath, fileDir)
+    const filePath = path.join(distPath, fileDir);
 
     sign.doSign(filePath, (res) => {
-      CERT_JSON[fileDir] = res
-      working -= 1
-      next()
-    })
+      CERT_JSON[fileDir] = res;
+      working -= 1;
+      next();
+    });
 
     if (++working < threads) {
-      next()
+      next();
     }
   }
 }
@@ -267,41 +267,41 @@ function signTar (distPath, files, cb) {
  */
 function gulpPkg (options, subapp, cb) {
   const handlePack = shortHash => {
-    let amrFilename = `${subapp.id}_${subapp.version}`
+    let amrFilename = `${subapp.id}_${subapp.version}`;
 
     // Custom offline-package filename
     if (subapp.filename) {
       amrFilename = subapp.filename
         .replace('[id]', subapp.id)
         .replace('[version]', subapp.version)
-        .replace('[random]', shortHash || Math.random().toString(36).substr(2, 7))
+        .replace('[random]', shortHash || Math.random().toString(36).substr(2, 7));
     }
 
-    amrFilename += '.amr'
+    amrFilename += '.amr';
 
-    const amrPath = path.join(ROOT_PATH, PACKAGE_DIR, amrFilename)
-    const srcPath = TEMP_DIR + '/**/*'
+    const amrPath = path.join(ROOT_PATH, PACKAGE_DIR, amrFilename);
+    const srcPath = TEMP_DIR + '/**/*';
 
     gulp.task('zip', () => {
       return gulp
         .src(srcPath)
         .pipe(zip(amrFilename))
-        .pipe(gulp.dest(PACKAGE_DIR))
-    })
+        .pipe(gulp.dest(PACKAGE_DIR));
+    });
     gulp.task('pack', ['zip'], () => {
-      console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')))
+      console.log(chalk.yellow('# packed successfully at'), chalk.green(amrPath.replace(home, '~')));
       const pkgInfo = {
         file: PACKAGE_DIR + '/' + amrFilename,
         config: subapp,
-      }
-      cb && cb(options.all, pkgInfo)
-    })
-    gulp.start('pack')
-  }
+      };
+      cb && cb(options.all, pkgInfo);
+    });
+    gulp.start('pack');
+  };
 
   lcl.getLastCommit()
     .then(lastCommit => handlePack(lastCommit.shortHash))
-    .catch(() => handlePack())
+    .catch(() => handlePack());
 }
 
 function preCheck () {
@@ -312,10 +312,10 @@ function preCheck () {
       If not having the private-key.
 
       Run the 'apfe pack genkey'.
-    `)
-    return
+    `);
+    return;
   }
-  entry()
+  entry();
 }
 
-preCheck()
+preCheck();

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander'
-const program = new Command('apfe pack')
+const { Command } = require('commander');
+const program = new Command('apfe pack');
 
 program
   .usage('<command> [options]')
@@ -9,4 +9,4 @@ program
   .command('genkey', 'generate the RSA key pairs')
   .command('exportkey', 'export the RSA key pairs')
   .command('pack', 'pack offline package', { isDefault: true })
-  .parse(process.argv)
+  .parse(process.argv);
