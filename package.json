@@ -18,11 +18,10 @@
     "apfe": "bin/apfe.js"
   },
   "scripts": {
-    "lint": "eslint . --ext .js --fix",
+    "lint": "eslint bin lib --ext .js --fix",
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
     "test": "npm run lint && ava --verbose test",
-    "test:snapshot": "ava --verbose --update-snapshots test",
-    "cov": "npm run lint && nyc --reporter=lcov --reporter=text ava test",
+    "cov": "nyc --reporter=lcov --reporter=text npm test",
     "contributor": "git-contributor",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "prepublishOnly": "np --yolo --no-publish"
@@ -48,7 +47,6 @@
     "fs-extra": "^7.0.1",
     "git-branch": "^2.0.1",
     "git-clone": "^0.1.0",
-    "globby": "^8.0.1",
     "gulp": "^3.9.1",
     "gulp-tar": "~2.1.0",
     "gulp-zip": "^4.2.0",
