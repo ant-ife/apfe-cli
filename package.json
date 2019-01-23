@@ -20,8 +20,12 @@
   "scripts": {
     "lint": "eslint . --ext .js --fix",
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
-    "ci": "npm run lint",
-    "contributor": "git-contributor"
+    "test": "npm run lint && ava --verbose test",
+    "test:snapshot": "ava --verbose --update-snapshots test",
+    "cov": "npm run lint && nyc --reporter=lcov --reporter=text ava test",
+    "contributor": "git-contributor",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "prepublishOnly": "np --yolo --no-publish"
   },
   "husky": {
     "hooks": {
@@ -36,6 +40,7 @@
   },
   "dependencies": {
     "camelcase": "^5.0.0",
+    "chalk": "^2.4.2",
     "commander": "^2.19.0",
     "consolidate": "^0.15.1",
     "debug": "^4.1.0",
@@ -69,14 +74,14 @@
     "win-spawn": "^2.0.0"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-fs": "^2.0.0",
-    "chalk": "^2.4.1",
+    "ava": "^1.1.0",
     "eslint": "^5.9.0",
     "eslint-config-antife": "^2.0.0",
     "git-contributor": "^1.0.8",
     "husky": "^1.3.1",
-    "lint-staged": "^8.1.0"
+    "lint-staged": "^8.1.0",
+    "np": "^4.0.1",
+    "nyc": "^13.1.0"
   },
   "engines": {
     "node": ">=8.0.0"
