@@ -23,7 +23,7 @@ function exec () {
   const program = require('commander');
 
   program
-    .version(require('../../package').version, '-v, --version')
+    .version(require('../package').version, '-v, --version')
     .usage('<command> [options]')
     .command('create', _commands.create)
     .command('update', _commands.update)
