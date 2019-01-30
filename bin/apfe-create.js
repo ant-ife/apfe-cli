@@ -1,98 +1,95 @@
 #!/usr/bin/env node
 
 const chalk = require('chalk');
-const { Command } = require('commander');
+const program = require('commander');
 const { existsSync: exists } = require('fs');
 const path = require('path');
 const home = require('user-home');
 const inquirer = require('inquirer');
-const { fatal, success } = require('../lib/logger');
-const { generate } = require('../lib/generate');
-const checkVersion = require('../lib/check-version');
-const { isLocalPath } = require('../lib/local-path');
-const { remoteGit } = require('../lib/defaults');
-const { normalizeTemplate } = require('../lib/util');
 
-const program = new Command('apfe create');
+let rawDirectory;
 
 /**
- * Help.
+ * Usage
  */
+program
+  .arguments('<project-directory>')
+  .action(function (directory) {
+    rawDirectory = directory;
+  })
+  .option(
+    '-r, --registry <registry-url>',
+    'custom npm registry used to fetch internal templates'
+  ).usage(`
+  $ apfe create <project-directory> [options]`);
 
+/**
+ * Help
+ */
 program.on('--help', function () {
   console.log(`
-  Examples:
-
-    ${chalk.gray('# create a new project with an default template')}
-    $ apfe create path/to/my-project
-
-    ${chalk.gray('# create a new project with an local path template')}
-    $ apfe create path/to/local-template path/to/my-project
-
-    ${chalk.gray('# create a new project straight from a git template')}
-    $ apfe create ${remoteGit} path/to/my-project
+Examples:
+  ${chalk.green('# create a new project with public templates')}
+  $ apfe create my-app
+  ${chalk.green('# create a new project in parent directory')}
+  $ apfe create ../my-app
+  ${chalk.green('# create a new project with internal templates')}
+  $ apfe create my-app --registry npm.my-registry.com
   `);
 });
 
 /**
- * Usage.
+ * Parse
  */
-program
-  .usage('<local-or-git-template> [project-name]')
-  .parse(process.argv);
+program.parse(process.argv);
 
 /**
- * Help.
+ * Validation
  */
-function help () {
-  program.parse(process.argv);
-  if (program.args.length < 1) return program.help();
+if (typeof rawDirectory === 'undefined') {
+  console.log(chalk.red('Please specify a project directory.'));
+  program.outputHelp();
+  process.exit(1);
 }
-help();
 
 /**
  * Settings.
  */
+const registry = program.registry;
 
-const args = program.args;
-let git = remoteGit;
-let rawName = args[0];
-if (args.length > 1) {
-  git = args[0];
-  rawName = args[1];
-}
+console.log('registry');
+console.log(registry);
+console.log('rawDirectory');
+console.log(rawDirectory);
 
 // resolve home dir
-rawName = rawName.replace(/^~/, home);
+rawDirectory = rawDirectory.replace(/^~/, home);
 
-const inPlace = !rawName || rawName === '.';
-const to = path.resolve(rawName || '.');
-const name = (function () {
-  const m = inPlace ? path.relative('../', process.cwd()) : rawName;
-  return path.basename(m);
-}());
+const to = path.resolve(rawDirectory);
+const name = path.basename(rawDirectory);
+
+console.log('name');
+console.log(name);
 
 /**
  * Padding.
  */
-
-console.log();
 process.on('exit', function () {
   console.log();
 });
 
 if (exists(to)) {
-  inquirer.prompt([
-    {
-      type: 'confirm',
-      message: inPlace
-        ? 'Generate project in current directory?'
-        : 'Target directory exists. Continue?',
-      name: 'ok',
-    },
-  ]).then(answers => {
-    answers.ok && run();
-  });
+  inquirer
+    .prompt([
+      {
+        type: 'confirm',
+        message: 'Target directory exists. Continue?',
+        name: 'ok',
+      },
+    ])
+    .then(answers => {
+      answers.ok && run();
+    });
 } else {
   run();
 }
@@ -101,17 +98,5 @@ if (exists(to)) {
  * Check, download and generate the project.
  */
 async function run () {
-  const template = await normalizeTemplate(git);
-  const cb = function () {
-    generate(name, template, to, function (err) {
-      if (err) fatal(err);
-      console.log();
-      success('Generated "%s".', name);
-    });
-  };
-  if (isLocalPath(template)) {
-    cb();
-  } else {
-    checkVersion().then(cb);
-  }
+  console.log('Generating');
 }
