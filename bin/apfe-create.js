@@ -6,6 +6,7 @@ const { existsSync: exists } = require('fs');
 const path = require('path');
 const home = require('user-home');
 const inquirer = require('inquirer');
+const sao = require('sao');
 
 let rawDirectory;
 
@@ -47,7 +48,7 @@ program.parse(process.argv);
  * Validation
  */
 if (typeof rawDirectory === 'undefined') {
-  console.log(chalk.red('Please specify a project directory.'));
+  console.log(chalk.red('Please specify a directory for the new project.'));
   program.outputHelp();
   process.exit(1);
 }
@@ -57,46 +58,79 @@ if (typeof rawDirectory === 'undefined') {
  */
 const registry = program.registry;
 
-console.log('registry');
-console.log(registry);
-console.log('rawDirectory');
-console.log(rawDirectory);
-
 // resolve home dir
 rawDirectory = rawDirectory.replace(/^~/, home);
 
 const to = path.resolve(rawDirectory);
 const name = path.basename(rawDirectory);
 
-console.log('name');
-console.log(name);
-
 /**
- * Padding.
+ * Padding
  */
 process.on('exit', function () {
   console.log();
 });
 
 if (exists(to)) {
-  inquirer
-    .prompt([
-      {
-        type: 'confirm',
-        message: 'Target directory exists. Continue?',
-        name: 'ok',
-      },
-    ])
-    .then(answers => {
-      answers.ok && run();
-    });
-} else {
-  run();
+  console.log(
+    chalk.red(
+      `Directory "${to}" already exists.
+Please remove it manually or enter another directory.`
+    )
+  );
+  process.exit(1);
 }
+
+/**
+ * Public templates
+ */
+const templates = [
+  {
+    name: 'vue.js',
+    type: 'github',
+    // https://saojs.org/guide/getting-started.html#using-generators
+    source: 'ant-ife/create-h5-app',
+  },
+];
+
+/**
+ * Custom registry and internal templates
+ */
+if (registry) {
+  console.log(chalk.red('Custom registry is not supported yet.'));
+  process.exit(1);
+}
+
+/**
+ * Questions
+ */
+const questions = [];
+questions.push({
+  type: 'list',
+  name: 'template',
+  message: 'Please select the template',
+  choices: Array.from(templates, template => ({
+    name: template.name,
+    value: template,
+    short: template.name,
+  })),
+});
+
+inquirer.prompt(questions).then(answers => {
+  run(answers.template);
+});
 
 /**
  * Check, download and generate the project.
  */
-async function run () {
-  console.log('Generating');
+async function run (template) {
+  console.log(
+    `Generating project at ${to}, using template ${chalk.blue(template.name)}`
+  );
+  const options = {
+    generator: template.source,
+    outDir: to,
+  };
+  const app = sao(options);
+  await app.run();
 }
