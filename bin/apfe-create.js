@@ -62,7 +62,6 @@ const registry = program.registry;
 rawDirectory = rawDirectory.replace(/^~/, home);
 
 const to = path.resolve(rawDirectory);
-const name = path.basename(rawDirectory);
 
 /**
  * Padding
@@ -109,21 +108,18 @@ questions.push({
   type: 'list',
   name: 'template',
   message: 'Please select the template',
-  choices: Array.from(templates, template => ({
+  choices: templates.map(template => ({
     name: template.name,
     value: template,
     short: template.name,
   })),
 });
 
-inquirer.prompt(questions).then(answers => {
-  run(answers.template);
-});
-
 /**
- * Check, download and generate the project.
+ * Prompt and Generate
  */
-async function run (template) {
+async function run () {
+  const { template } = await inquirer.prompt(questions);
   console.log(
     `Generating project at ${to}, using template ${chalk.blue(template.name)}`
   );
@@ -134,3 +130,5 @@ async function run (template) {
   const app = sao(options);
   await app.run();
 }
+
+run();
