@@ -140,7 +140,9 @@ function entry () {
   try {
     const pkg = fs.readJSONSync(configPath)
     const version = pkg.version
-    const config = Object.assign({ version }, pkg.subapp)
+    const config = Object.assign({ version }, pkg.subapp, {
+      id: process.env['SUBAPP_ID'],
+    })
 
     if (!('subapp' in pkg)) {
       console.log(chalk.red(`\r\nMissing \`subapp\` config in ${configPath}`))
