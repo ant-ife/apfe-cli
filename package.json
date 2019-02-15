@@ -23,7 +23,7 @@
     "build:docker": "docker build . -t=apfe/apfe-build-docker",
     "test": "nyc --reporter=lcov --reporter=text mocha",
     "contributor": "git-contributor",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add .",
     "prepublishOnly": "np --yolo --no-publish"
   },
   "husky": {
@@ -73,6 +73,7 @@
     "win-spawn": "^2.0.0"
   },
   "devDependencies": {
+    "conventional-changelog-cli": "^2.0.12",
     "eslint": "^5.9.0",
     "eslint-config-antife": "^2.0.0",
     "git-contributor": "^1.0.8",
