@@ -131,7 +131,7 @@ function archiving (subapp, cb) {
  * @access public
  */
 async function entry () {
-  const configPath = path.resolve(program.config) || path.join(process.cwd(), 'package.json');
+  const configPath = program.config ? path.resolve(program.config) : path.join(process.cwd(), 'package.json');
   debug('configPath %s', configPath);
 
   if (!fs.pathExistsSync(configPath)) {
