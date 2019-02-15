@@ -11,6 +11,7 @@ const sign = require('../lib/sign');
 const home = require('user-home');
 const { Command } = require('commander');
 const LCL = require('last-commit-log');
+const debug = require('debug')('apfe-cli:pack');
 
 const lcl = new LCL();
 
@@ -130,7 +131,8 @@ function archiving (subapp, cb) {
  * @access public
  */
 async function entry () {
-  const configPath = program.config || 'package.json';
+  const configPath = program.config || path.join(process.cwd(), 'package.json');
+  debug('configPath %s', configPath);
 
   if (!fs.pathExistsSync(configPath)) {
     console.log(chalk.red(`\r\nMissing ${configPath}`));
