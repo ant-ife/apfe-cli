@@ -1,3 +1,12 @@
+## [1.6.2](https://github.com/ant-ife/apfe-cli/compare/v1.6.1...v1.6.2) (2019-02-15)
+
+
+### Bug Fixes
+
+* **pack:** resolve config path ([57ef6d6](https://github.com/ant-ife/apfe-cli/commit/57ef6d6))
+
+
+
 ## [1.6.1](https://github.com/ant-ife/apfe-cli/compare/v1.6.0...v1.6.1) (2019-02-15)
 
 
