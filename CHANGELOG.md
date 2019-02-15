@@ -1,3 +1,12 @@
+# [1.6.0](https://github.com/ant-ife/apfe-cli/compare/v1.6.0-beta.1...v1.6.0) (2019-02-15)
+
+
+### Bug Fixes
+
+* **pack:** resolve package.json path ([08533d5](https://github.com/ant-ife/apfe-cli/commit/08533d5))
+
+
+
 # [1.6.0-beta.1](https://github.com/ant-ife/apfe-cli/compare/1.5.0...v1.6.0-beta.1) (2019-02-15)
 
 
