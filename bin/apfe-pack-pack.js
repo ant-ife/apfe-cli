@@ -129,7 +129,7 @@ function archiving (subapp, cb) {
  * @function
  * @access public
  */
-function entry () {
+async function entry () {
   const configPath = program.config || 'package.json';
 
   if (!fs.pathExistsSync(configPath)) {
@@ -138,7 +138,13 @@ function entry () {
   }
 
   try {
-    const pkg = fs.readJSONSync(configPath);
+    let pkg = {};
+    const mod = require(configPath);
+    if (typeof mod === 'function') {
+      pkg = await mod();
+    } else {
+      pkg = Object.assign({}, mod);
+    }
     const version = pkg.version;
     const config = Object.assign({ version }, pkg.subapp);
 
