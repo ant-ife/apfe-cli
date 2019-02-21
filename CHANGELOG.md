@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/ant-ife/apfe-cli/compare/v1.6.2...v1.7.0) (2019-02-21)
+
+
+### Features
+
+* **create:** suppport template input, custom npm client ([#21](https://github.com/ant-ife/apfe-cli/issues/21)) ([87afc00](https://github.com/ant-ife/apfe-cli/commit/87afc00))
+
+
+
 ## [1.6.2](https://github.com/ant-ife/apfe-cli/compare/v1.6.1...v1.6.2) (2019-02-15)
 
 
