@@ -9,26 +9,24 @@ const inquirer = require('inquirer');
 const sao = require('sao');
 
 let rawTemplate;
-let rawDirectory;
+let rawPath;
 
 /**
  * Usage
  */
 program
-  .arguments('[template]')
-  .arguments('[project-directory]')
-  .action(function (template, directory) {
-    if (directory === undefined) {
-      // 1 arg -> project-directory
-      rawDirectory = template;
+  .arguments('<template>')
+  .arguments('[path-to-project]')
+  .action(function (template, path) {
+    rawTemplate = template;
+    if (path) {
+      rawPath = path;
     } else {
-      // 2 args -> template, project-directory
-      rawTemplate = template;
-      rawDirectory = directory;
+      rawPath = '.';
     }
   })
   .option('-c, --npm-client <client>', 'custom npm client').usage(`
-  $ apfe create [template] <project-directory> [options]`);
+  $ apfe create <template> [path-to-project] [options]`);
 
 /**
  * Help
@@ -38,20 +36,17 @@ program.on('--help', function () {
 Creates new projects from create-* template.
 
 Examples:
-  ${chalk.green('# create project my-app with h5-app template')}
-  $ apfe create h5-app my-app
+  ${chalk.green('# create project with h5-app template')}
+  $ apfe create h5-app path/to/project
 
   ${chalk.green(
-    '# create project my-app with h5-app template using custom npm client'
+    '# create project with h5-app template using custom npm client'
   )}
-  $ apfe create h5-app my-app -c mynpm
+  $ apfe create h5-app path/to/project -c mynpm
 
-  ${chalk.green('# create project my-app, choose public template from list')}
-  $ apfe create my-app
-  
-  ${chalk.green('# create project my-app in parent directory')}
-  $ apfe create ../my-app
-  `);
+  ${chalk.green('# create project in current directory with h5-app template')}
+  $ apfe create h5-app
+`);
 });
 
 /**
@@ -62,16 +57,14 @@ program.parse(process.argv);
 /**
  * Validation
  */
-if (typeof rawDirectory === 'undefined') {
-  console.log(chalk.red('Please specify a directory for the new project.'));
+if (typeof rawTemplate === 'undefined') {
   program.outputHelp();
   process.exit(1);
 }
 
 // resolve home dir
-rawDirectory = rawDirectory.replace(/^~/, home);
-
-const to = path.resolve(rawDirectory);
+rawPath = rawPath.replace(/^~/, home);
+const outDir = path.resolve(rawPath);
 
 /**
  * Padding
@@ -79,28 +72,6 @@ const to = path.resolve(rawDirectory);
 process.on('exit', function () {
   console.log();
 });
-
-if (exists(to)) {
-  console.log(
-    chalk.red(
-      `Directory "${to}" already exists.
-Please remove it manually or enter another directory.`
-    )
-  );
-  process.exit(1);
-}
-
-/**
- * Public templates
- */
-const templates = [
-  {
-    name: 'vue.js',
-    type: 'npm',
-    // https://saojs.org/guide/getting-started.html#using-generators
-    source: 'npm:create-h5-app',
-  },
-];
 
 /**
  * Custom npm client and internal templates
@@ -114,41 +85,43 @@ if (program.npmClient) {
  * Questions
  */
 const questions = [];
-questions.push({
-  type: 'list',
-  name: 'template',
-  message: 'Please select the template',
-  choices: templates.map(template => ({
-    name: template.name,
-    value: template,
-    short: template.name,
-  })),
-});
+
+if (exists(outDir)) {
+  questions.push({
+    type: 'confirm',
+    name: 'override',
+    message: `The directory ${outDir} already exists, continue?`,
+    default: false,
+  });
+}
 
 /**
  * Prompt and Generate
  */
 async function run () {
-  let generator;
-  if (rawTemplate) {
-    const fullTemplate = `create-${rawTemplate}`;
-    console.log(
-      `Generating project at ${to}, using template ${chalk.blue(fullTemplate)}`
-    );
-    // https://saojs.org/guide/getting-started.html#using-generators
-    generator = `npm:${fullTemplate}`;
-  } else {
-    const res = await inquirer.prompt(questions);
-    console.log(
-      `Generating project at ${to}, using template ${chalk.blue(
-        res.template.name
-      )}`
-    );
-    generator = res.template.source;
+  const res = await inquirer.prompt(questions);
+  if (res.override === false) {
+    process.exit(1);
   }
+  let fullTemplate;
+  const templateParts = rawTemplate.split('/');
+  if (templateParts.length === 1) {
+    fullTemplate = `create-${rawTemplate}`;
+  } else if (templateParts.length === 2) {
+    fullTemplate = `${templateParts[0]}/create-${templateParts[1]}`;
+  } else {
+    console.log(chalk.red('Template format invalid'));
+  }
+  console.log(
+    `Generating project at ${outDir}, using template ${chalk.blue(
+      fullTemplate
+    )}`
+  );
+  // https://saojs.org/guide/getting-started.html#using-generators
+  const generator = `npm:${fullTemplate}`;
   const options = {
     generator,
-    outDir: to,
+    outDir,
     ...npmClient,
   };
   const app = sao(options);
