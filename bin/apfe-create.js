@@ -8,34 +8,49 @@ const home = require('user-home');
 const inquirer = require('inquirer');
 const sao = require('sao');
 
+let rawTemplate;
 let rawDirectory;
 
 /**
  * Usage
  */
 program
-  .arguments('<project-directory>')
-  .action(function (directory) {
-    rawDirectory = directory;
+  .arguments('[template]')
+  .arguments('[project-directory]')
+  .action(function (template, directory) {
+    if (directory === undefined) {
+      // 1 arg -> project-directory
+      rawDirectory = template;
+    } else {
+      // 2 args -> template, project-directory
+      rawTemplate = template;
+      rawDirectory = directory;
+    }
   })
-  .option(
-    '-r, --registry <registry-url>',
-    'custom npm registry used to fetch internal templates'
-  ).usage(`
-  $ apfe create <project-directory> [options]`);
+  .option('-c, --npm-client <client>', 'custom npm client').usage(`
+  $ apfe create [template] <project-directory> [options]`);
 
 /**
  * Help
  */
 program.on('--help', function () {
   console.log(`
+Creates new projects from create-* template.
+
 Examples:
-  ${chalk.green('# create a new project with public templates')}
+  ${chalk.green('# create project my-app with h5-app template')}
+  $ apfe create h5-app my-app
+
+  ${chalk.green(
+    '# create project my-app with h5-app template using custom npm client'
+  )}
+  $ apfe create h5-app my-app -c mynpm
+
+  ${chalk.green('# create project my-app, choose public template from list')}
   $ apfe create my-app
-  ${chalk.green('# create a new project in parent directory')}
+  
+  ${chalk.green('# create project my-app in parent directory')}
   $ apfe create ../my-app
-  ${chalk.green('# create a new project with internal templates')}
-  $ apfe create my-app --registry npm.my-registry.com
   `);
 });
 
@@ -52,11 +67,6 @@ if (typeof rawDirectory === 'undefined') {
   program.outputHelp();
   process.exit(1);
 }
-
-/**
- * Settings.
- */
-const registry = program.registry;
 
 // resolve home dir
 rawDirectory = rawDirectory.replace(/^~/, home);
@@ -86,18 +96,18 @@ Please remove it manually or enter another directory.`
 const templates = [
   {
     name: 'vue.js',
-    type: 'github',
+    type: 'npm',
     // https://saojs.org/guide/getting-started.html#using-generators
-    source: 'ant-ife/create-h5-app',
+    source: 'npm:create-h5-app',
   },
 ];
 
 /**
- * Custom registry and internal templates
+ * Custom npm client and internal templates
  */
-if (registry) {
-  console.log(chalk.red('Custom registry is not supported yet.'));
-  process.exit(1);
+let npmClient = {};
+if (program.npmClient) {
+  npmClient = { npmClient: program.npmClient };
 }
 
 /**
@@ -119,13 +129,27 @@ questions.push({
  * Prompt and Generate
  */
 async function run () {
-  const { template } = await inquirer.prompt(questions);
-  console.log(
-    `Generating project at ${to}, using template ${chalk.blue(template.name)}`
-  );
+  let generator;
+  if (rawTemplate) {
+    const fullTemplate = `create-${rawTemplate}`;
+    console.log(
+      `Generating project at ${to}, using template ${chalk.blue(fullTemplate)}`
+    );
+    // https://saojs.org/guide/getting-started.html#using-generators
+    generator = `npm:${fullTemplate}`;
+  } else {
+    const res = await inquirer.prompt(questions);
+    console.log(
+      `Generating project at ${to}, using template ${chalk.blue(
+        res.template.name
+      )}`
+    );
+    generator = res.template.source;
+  }
   const options = {
-    generator: template.source,
+    generator,
     outDir: to,
+    ...npmClient,
   };
   const app = sao(options);
   await app.run();
