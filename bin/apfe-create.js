@@ -35,14 +35,16 @@ program
  */
 program.on('--help', function () {
   console.log(`
+Creates new projects from create-* template.
+
 Examples:
-  ${chalk.green('# create project my-app with create-h5-app template')}
-  $ apfe create create-h5-app my-app
+  ${chalk.green('# create project my-app with h5-app template')}
+  $ apfe create h5-app my-app
 
   ${chalk.green(
-    '# create project my-app with create-h5-app template using custom npm client'
+    '# create project my-app with h5-app template using custom npm client'
   )}
-  $ apfe create create-h5-app my-app -c mynpm
+  $ apfe create h5-app my-app -c mynpm
 
   ${chalk.green('# create project my-app, choose public template from list')}
   $ apfe create my-app
@@ -129,11 +131,12 @@ questions.push({
 async function run () {
   let generator;
   if (rawTemplate) {
+    const fullTemplate = `create-${rawTemplate}`;
     console.log(
-      `Generating project at ${to}, using template ${chalk.blue(rawTemplate)}`
+      `Generating project at ${to}, using template ${chalk.blue(fullTemplate)}`
     );
     // https://saojs.org/guide/getting-started.html#using-generators
-    generator = `npm:${rawTemplate}`;
+    generator = `npm:${fullTemplate}`;
   } else {
     const res = await inquirer.prompt(questions);
     console.log(
