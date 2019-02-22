@@ -8,13 +8,13 @@ const { existsFile } = require('../lib/exists');
 
 const _commands = {
   create: 'create a new project',
-  update: 'update configs (babel, eslint, webpack...)',
   pack: 'pack offline package',
-  sim: 'debug in iOS simulator',
 };
 
 if (Math.random() < 0.2) {
-  checkSelfVersion().then(exec).catch(exec);
+  checkSelfVersion()
+    .then(exec)
+    .catch(exec);
 } else {
   exec();
 }
@@ -26,9 +26,7 @@ function exec () {
     .version(require('../package').version, '-v, --version')
     .usage('<command> [options]')
     .command('create', _commands.create)
-    .command('update', _commands.update)
     .command('pack', _commands.pack)
-    .command('sim', _commands.sim)
     .parse(process.argv);
 
   const subcmd = program.args[0];
