@@ -17,7 +17,7 @@ let rawPath;
 program
   .arguments('<template>')
   .arguments('[path-to-project]')
-  .action(function (template, path) {
+  .action(function(template, path) {
     rawTemplate = template;
     if (path) {
       rawPath = path;
@@ -31,7 +31,7 @@ program
 /**
  * Help
  */
-program.on('--help', function () {
+program.on('--help', function() {
   console.log(`
 Creates new projects from create-* template.
 
@@ -69,7 +69,7 @@ const outDir = path.resolve(rawPath);
 /**
  * Padding
  */
-process.on('exit', function () {
+process.on('exit', function() {
   console.log();
 });
 
@@ -98,7 +98,7 @@ if (exists(outDir)) {
 /**
  * Prompt and Generate
  */
-async function run () {
+async function run() {
   const res = await inquirer.prompt(questions);
   if (res.override === false) {
     process.exit(1);
@@ -123,6 +123,7 @@ async function run () {
     generator,
     outDir,
     ...npmClient,
+    update: true,
   };
   const app = sao(options);
   await app.run();
